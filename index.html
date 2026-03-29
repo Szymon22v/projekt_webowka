@@ -1,2 +1,47 @@
-<h1>Test działa</h1>
-<h1>Test działa</h1>
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Znany Lekarz</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background: linear-gradient(rgb(234, 214, 214), rgb(132, 132, 228));
+      }
+    </style>
+  </head>
+
+  <body class="d-flex justify-content-center align-items-center vh-100">
+    <div class="text-center">
+      <h1 class="title mb-4">Znany Lekarz</h1>
+
+      <form class="p-4 border rounded bg-white" style="min-width: 300px">
+        <div class="mb-3 text-start">
+          <label for="mail" class="form-label">Email</label>
+          <input type="email" class="form-control" id="mail" />
+        </div>
+
+        <div class="mb-3 text-start">
+          <label for="password" class="form-label">Hasło</label>
+          <input type="password" class="form-control" id="password" />
+        </div>
+
+        <div class="mb-3 form-check text-start">
+          <input type="checkbox" class="form-check-input" id="exampleCheck1" />
+          <label class="form-check-label" for="exampleCheck1">
+            Zapamiętaj mnie
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Zaloguj się</button>
+      </form>
+    </div>
+  </body>
+</html>
