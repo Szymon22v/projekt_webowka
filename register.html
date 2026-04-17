@@ -47,7 +47,34 @@
             type="password"
             class="form-control"
             id="confirmPassword"
+            name="confirmPassword"
             required
+          />
+        </div>
+
+        <button type="submit" class="custom-btn register-btn">Zarejestruj się</button>
+
+        <p class="text-center mt-3 mb-2">Masz już konto?</p>
+
+        <a href="index.html" class="custom-btn login-btn d-inline-block" style="text-decoration: none;">
+          Zaloguj się
+        </a>
+      </form>
+    </div>
+
+    <script>
+      document.querySelector('form').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (password !== confirmPassword) {
+          e.preventDefault();
+          alert('Hasła się nie zgadzają!');
+        }
+      });
+    </script>
+  </body>
+</html>
           />
         </div>
 

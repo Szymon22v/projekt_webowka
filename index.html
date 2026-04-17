@@ -18,20 +18,20 @@
     <div class="text-center">
       <h1 class="title mb-4">Znany Lekarz</h1>
 
-      <form class="p-4 border rounded bg-white" style="min-width: 300px">
+      <form class="p-4 border rounded bg-white" style="min-width: 300px" method="POST" action="login.php">
         <div class="mb-3 text-start">
-          <label for="mail" class="form-label">Email</label>
-          <input type="email" class="form-control" id="mail" />
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" name="email" required />
         </div>
 
         <div class="mb-3 text-start">
           <label for="password" class="form-label">Hasło</label>
-          <input type="password" class="form-control" id="password" />
+          <input type="password" class="form-control" id="password" name="password" required />
         </div>
 
         <div class="mb-3 form-check text-start">
-          <input type="checkbox" class="form-check-input" id="exampleCheck1" />
-          <label class="form-check-label" for="exampleCheck1">
+          <input type="checkbox" class="form-check-input" id="remember" name="remember" />
+          <label class="form-check-label" for="remember">
             Zapamiętaj mnie
           </label>
         </div>
@@ -40,9 +40,9 @@
 
         <p class="text-center mt-3 mb-2">Nie masz konta?</p>
 
-        <button type="button" class="custom-btn register-btn">
+        <a href="register.html" class="custom-btn register-btn d-inline-block" style="text-decoration: none;">
           Zarejestruj się
-        </button>
+        </a>
       </form>
     </div>
   </body>
