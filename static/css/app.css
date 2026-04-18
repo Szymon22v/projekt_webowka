@@ -1,0 +1,277 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   app.css – Niestandardowe style KlinikaApp
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Zmienne kolorów ──────────────────────────────────────────────────── */
+:root {
+    --brand-primary:   #2563eb;
+    --brand-secondary: #3b82f6;
+    --brand-light:     #eff6ff;
+    --text-dark:       #1e293b;
+    --text-muted:      #64748b;
+    --border-color:    #e2e8f0;
+    --shadow-sm:       0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --shadow-md:       0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+    --shadow-lg:       0 10px 15px rgba(0,0,0,.1), 0 4px 6px rgba(0,0,0,.05);
+    --radius:          12px;
+}
+
+/* ── Reset i baza ──────────────────────────────────────────────────────── */
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text-dark);
+    background: #f8fafc;
+}
+
+a { color: var(--brand-primary); }
+a:hover { color: var(--brand-secondary); }
+
+/* ── Navbar ────────────────────────────────────────────────────────────── */
+.navbar {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+    padding: 0.75rem 0;
+}
+
+.brand-icon {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,.2);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+}
+
+.navbar-nav .nav-link { font-weight: 500; padding: 0.5rem 0.875rem; border-radius: 6px; }
+.navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+    background: rgba(255,255,255,.15);
+}
+
+/* ── Hero sekcja ───────────────────────────────────────────────────────── */
+.hero-section {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #2563eb 100%);
+    min-height: 520px;
+    display: flex; align-items: center;
+    position: relative; overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='2' fill='rgba(255,255,255,0.05)'/%3E%3C/svg%3E");
+}
+
+.hero-badge {
+    display: inline-flex; align-items: center;
+    background: rgba(255,255,255,.15);
+    color: rgba(255,255,255,.9);
+    padding: .375rem .875rem;
+    border-radius: 50px;
+    font-size: .85rem; font-weight: 500;
+    border: 1px solid rgba(255,255,255,.2);
+}
+
+.hero-title { color: #fff; line-height: 1.2; }
+.text-primary-light { color: #93c5fd; }
+.text-white-75 { color: rgba(255,255,255,.75); }
+.text-white-25 { color: rgba(255,255,255,.15); }
+
+/* Wyszukiwarka hero */
+.hero-search-form { max-width: 560px; }
+.search-container {
+    display: flex; align-items: center;
+    background: #fff;
+    border-radius: 50px;
+    padding: .35rem .35rem .35rem 1.25rem;
+    box-shadow: var(--shadow-lg);
+    gap: .5rem;
+}
+.search-icon { color: var(--text-muted); font-size: 1rem; }
+.search-input {
+    flex: 1; border: none; outline: none;
+    font-size: 1rem; color: var(--text-dark);
+    background: transparent;
+}
+.search-btn {
+    background: var(--brand-primary); color: #fff;
+    border: none; padding: .6rem 1.25rem;
+    border-radius: 50px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+    transition: background .2s;
+}
+.search-btn:hover { background: #1d4ed8; }
+
+/* Podpowiedzi autocomplete (dynamicznie tworzone przez JS) */
+.search-suggestions {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: #fff; border-radius: 12px;
+    box-shadow: var(--shadow-lg); list-style: none;
+    padding: .5rem 0; margin: .5rem 0 0;
+    z-index: 999; max-height: 200px; overflow-y: auto;
+}
+.search-suggestions li {
+    padding: .5rem 1.25rem; cursor: pointer;
+    font-size: .9rem; transition: background .15s;
+}
+.search-suggestions li:hover { background: var(--brand-light); }
+
+/* Szybkie linki */
+.quick-links { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.quick-link-chip {
+    background: rgba(255,255,255,.15);
+    color: rgba(255,255,255,.9);
+    padding: .25rem .75rem; border-radius: 50px;
+    font-size: .8rem; text-decoration: none;
+    border: 1px solid rgba(255,255,255,.2);
+    transition: all .2s;
+}
+.quick-link-chip:hover {
+    background: rgba(255,255,255,.25);
+    color: #fff;
+}
+
+/* Hero ilustracja */
+.hero-illustration { opacity: .1; }
+.min-vh-50 { min-height: 50vh; }
+
+/* ── Statystyki ────────────────────────────────────────────────────────── */
+.stats-section { border-bottom: 1px solid var(--border-color); }
+.stat-item { padding: 1.5rem; border-right: 1px solid var(--border-color); }
+.stat-item:last-child { border-right: none; }
+.stat-number { font-size: 2.25rem; line-height: 1; }
+.stat-label { margin-top: .25rem; }
+
+/* ── Kafelki specjalizacji ──────────────────────────────────────────────── */
+.spec-card {
+    display: flex; align-items: center;
+    background: #fff; border-radius: var(--radius);
+    padding: 1.25rem; gap: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: all .25s; color: var(--text-dark);
+    border: 1px solid var(--border-color);
+}
+.spec-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    color: var(--brand-primary);
+}
+.spec-card-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+}
+.spec-card-body { flex: 1; min-width: 0; }
+.spec-card-title { margin-bottom: 2px; font-size: .95rem; }
+.spec-card-count { font-size: .78rem; }
+.spec-card-arrow { opacity: 0; transition: opacity .2s, transform .2s; }
+.spec-card:hover .spec-card-arrow { opacity: 1; transform: translateX(4px); }
+
+/* ── Jak to działa ──────────────────────────────────────────────────────── */
+.how-it-works { }
+.how-step { position: relative; }
+.step-number {
+    width: 44px; height: 44px;
+    background: var(--brand-primary); color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; font-weight: 700;
+    margin: 0 auto 1rem;
+}
+.step-icon { transition: transform .3s; }
+.how-step:hover .step-icon { transform: scale(1.15); }
+
+/* ── Karty lekarzy ──────────────────────────────────────────────────────── */
+.lekarz-card {
+    border-radius: var(--radius); overflow: hidden;
+    transition: all .25s;
+}
+.lekarz-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg) !important;
+}
+.card-top-bar { height: 5px; }
+.card-top-bar-lg { height: 8px; }
+.lekarz-avatar {
+    width: 50px; height: 50px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.lekarz-details li { padding: .2rem 0; font-size: .85rem; }
+.lekarz-opis { font-size: .85rem; line-height: 1.6; }
+
+/* ── Profil lekarza ──────────────────────────────────────────────────────── */
+.doctor-avatar-lg {
+    width: 100px; height: 100px; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Booking: wybór slotów ──────────────────────────────────────────────── */
+.step-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px;
+    background: var(--brand-primary); color: #fff;
+    border-radius: 50%; font-size: .8rem; font-weight: 700;
+    margin-right: .5rem;
+}
+.booking-step { padding: 1.25rem; background: #f8fafc; border-radius: 10px; }
+
+.slots-grid {
+    display: flex; flex-wrap: wrap; gap: .5rem;
+}
+.slot-btn {
+    min-width: 70px; font-weight: 600;
+    border-radius: 8px !important;
+    transition: all .15s;
+}
+.slot-btn:hover { transform: scale(1.05); }
+.slot-btn.active { animation: slotPop .2s ease; }
+
+@keyframes slotPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+}
+
+/* ── Tabela wizyt ────────────────────────────────────────────────────────── */
+.wizyta-row { transition: box-shadow .2s; }
+.wizyta-row:hover { box-shadow: var(--shadow-md) !important; }
+.mini-avatar { width: 38px; height: 38px; }
+
+/* ── Panel karty stat ────────────────────────────────────────────────────── */
+.stat-panel-card {
+    border-radius: var(--radius);
+    transition: all .2s;
+}
+.stat-panel-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* ── Filtr lekarzy ───────────────────────────────────────────────────────── */
+.filter-panel { border-radius: var(--radius); }
+
+/* ── Stopka ──────────────────────────────────────────────────────────────── */
+.footer-link:hover { color: #fff !important; }
+
+/* ── Strona główna: sekcja nagłówka ──────────────────────────────────────── */
+.page-header { border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; }
+.section-header h2::after {
+    content: '';
+    display: block;
+    width: 60px; height: 3px;
+    background: var(--brand-primary);
+    margin: .5rem auto 0;
+    border-radius: 2px;
+}
+
+/* ── Potwierdzenie wizyty ────────────────────────────────────────────────── */
+.success-circle { display: inline-block; }
+
+/* ── Responsywność ───────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .hero-section { min-height: auto; padding: 3rem 0; }
+    .hero-title { font-size: 2rem; }
+    .search-container { flex-direction: column; border-radius: 16px; padding: 1rem; }
+    .search-btn { width: 100%; text-align: center; border-radius: 8px; }
+    .stat-item { border-right: none; border-bottom: 1px solid var(--border-color); }
+    .stat-item:last-child { border-bottom: none; }
+}

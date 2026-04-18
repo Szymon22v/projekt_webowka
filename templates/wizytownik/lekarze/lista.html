@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Lekarze{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- Nagłówek strony -->
+    <div class="page-header mb-4">
+        <h1 class="fw-bold">
+            <i class="fa-solid fa-user-doctor me-2 text-primary"></i>Lekarze specjaliści
+        </h1>
+        <p class="text-muted mb-0">
+            {% if liczba_wynikow %}
+                Znaleziono <strong>{{ liczba_wynikow }}</strong> lekarz{% if liczba_wynikow == 1 %}a{% elif liczba_wynikow < 5 %}y{% else %}y{% endif %}
+            {% else %}
+                Brak wyników dla podanych kryteriów
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ══ PANEL FILTRÓW (boczny) ══════════════════════════════════════════ -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm filter-panel sticky-top" style="top:80px">
+                <div class="card-header bg-primary text-white rounded-top">
+                    <h6 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-sliders me-2"></i>Filtruj wyniki
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!--
+                    Formularz filtrowania – dane w pasku adresu (GET).
+                    Formularz automatycznie wypełniany wartościami z URL.
+                    Spełnia wymóg punktu 5.
+                    -->
+                    <form method="GET" action="{% url 'lista_lekarzy' %}" id="filter-form">
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-magnifying-glass me-1"></i>Zastosuj filtry
+                            </button>
+                            <a href="{% url 'lista_lekarzy' %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fa-solid fa-xmark me-1"></i>Wyczyść
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ KARTY LEKARZY ════════════════════════════════════════════════════ -->
+        <div class="col-lg-9">
+            {% if lekarze %}
+
+            <!-- Pasek sortowania i widoku -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">
+                    <i class="fa-solid fa-list me-1"></i>{{ liczba_wynikow }} wynik{% if liczba_wynikow != 1 %}i{% endif %}
+                </span>
+                <!-- Przycisk zmiany widoku (JS Element #2: dynamiczna zmiana układu) -->
+                <div class="btn-group btn-group-sm" role="group">
+                    <button id="btn-grid" class="btn btn-outline-secondary active" title="Siatka">
+                        <i class="fa-solid fa-grip"></i>
+                    </button>
+                    <button id="btn-list" class="btn btn-outline-secondary" title="Lista">
+                        <i class="fa-solid fa-list"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-4" id="lekarze-container">
+                {% for lekarz in lekarze %}
+                <div class="col-md-6 col-xl-4 lekarz-col">
+                    <div class="card lekarz-card border-0 shadow-sm h-100">
+
+                        <!-- Kolorowy pasek górny wg specjalizacji -->
+                        <div class="card-top-bar bg-{{ lekarz.specjalizacja.kolor_karty }}"></div>
+
+                        <div class="card-body p-4">
+                            <!-- Avatar + ocena -->
+                            <div class="d-flex align-items-start gap-3 mb-3">
+                                <div class="lekarz-avatar bg-{{ lekarz.specjalizacja.kolor_karty }} bg-opacity-10">
+                                    <i class="fa-solid {{ lekarz.specjalizacja.ikona_fa }}
+                                       text-{{ lekarz.specjalizacja.kolor_karty }} fa-lg"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 fw-bold">{{ lekarz.tytul_i_nazwisko }}</h6>
+                                    <span class="badge bg-{{ lekarz.specjalizacja.kolor_karty }} bg-opacity-10
+                                                 text-{{ lekarz.specjalizacja.kolor_karty }} border
+                                                 border-{{ lekarz.specjalizacja.kolor_karty }} mt-1">
+                                        {{ lekarz.specjalizacja.nazwa }}
+                                    </span>
+                                </div>
+                                <div class="text-end">
+                                    <div class="rating-stars small text-warning">
+                                        {% with lekarz.ocena|floatformat:0 as gwiazdki %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= gwiazdki|add:0 %}
+                                                <i class="fa-solid fa-star"></i>
+                                            {% else %}
+                                                <i class="fa-regular fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% endwith %}
+                                    </div>
+                                    <div class="text-muted" style="font-size:0.75rem">
+                                        {{ lekarz.ocena }}/5
+                                        <span class="text-muted">({{ lekarz.liczba_opinii }})</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Szczegóły -->
+                            <ul class="list-unstyled mb-3 lekarz-details">
+                                <li>
+                                    <i class="fa-solid fa-location-dot text-danger fa-fw me-2"></i>
+                                    <span class="text-muted">{{ lekarz.miasto }}</span>
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-clock text-info fa-fw me-2"></i>
+                                    <span class="text-muted">{{ lekarz.godz_pracy }}</span>
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-briefcase text-success fa-fw me-2"></i>
+                                    <span class="text-muted">{{ lekarz.doswiadczenie_lat }} lat doświadczenia</span>
+                                </li>
+                            </ul>
+
+                            <!-- Opis (skrócony) -->
+                            <p class="text-muted small lekarz-opis">{{ lekarz.opis|truncatechars:100 }}</p>
+                        </div>
+
+                        <div class="card-footer bg-white border-top-0 px-4 pb-4 pt-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="fw-bold text-primary fs-5">
+                                    {{ lekarz.cena_wizyty|floatformat:0 }} zł
+                                    <span class="text-muted fw-normal fs-6">/ wizyta</span>
+                                </div>
+                                <a href="{% url 'profil_lekarza' lekarz.pk %}"
+                                   class="btn btn-primary btn-sm">
+                                    <i class="fa-solid fa-calendar-plus me-1"></i>Umów wizytę
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <!-- Stan pusty -->
+            <div class="empty-state text-center py-5">
+                <i class="fa-solid fa-user-doctor fa-4x text-muted mb-3 d-block"></i>
+                <h4 class="text-muted">Nie znaleziono lekarzy</h4>
+                <p class="text-muted">Spróbuj zmienić kryteria filtrowania lub
+                    <a href="{% url 'lista_lekarzy' %}">wyczyść filtry</a>.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── JS Element #2: Dynamiczna zmiana układu kart (siatka / lista) ─────────────
+const btnGrid = document.getElementById('btn-grid');
+const btnList = document.getElementById('btn-list');
+const container = document.getElementById('lekarze-container');
+
+btnGrid?.addEventListener('click', function () {
+    btnGrid.classList.add('active');
+    btnList.classList.remove('active');
+    document.querySelectorAll('.lekarz-col').forEach(col => {
+        col.className = 'col-md-6 col-xl-4 lekarz-col';
+    });
+    localStorage.setItem('lekarze-view', 'grid');
+});
+
+btnList?.addEventListener('click', function () {
+    btnList.classList.add('active');
+    btnGrid.classList.remove('active');
+    document.querySelectorAll('.lekarz-col').forEach(col => {
+        col.className = 'col-12 lekarz-col';
+    });
+    localStorage.setItem('lekarze-view', 'list');
+});
+
+// Przywróć poprzedni widok
+if (localStorage.getItem('lekarze-view') === 'list') {
+    btnList?.click();
+}
+
+// ── Animacja pojawiania się kart po załadowaniu ───────────────────────────────
+document.querySelectorAll('.lekarz-card').forEach((card, i) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    setTimeout(() => {
+        card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+    }, i * 80);
+});
+</script>
+{% endblock %}

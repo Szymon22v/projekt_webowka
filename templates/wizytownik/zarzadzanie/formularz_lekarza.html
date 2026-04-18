@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}{{ akcja }}{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 900px">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'panel' %}">Panel</a></li>
+            <li class="breadcrumb-item active">{{ akcja }}</li>
+        </ol>
+    </nav>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white py-3">
+            <h4 class="mb-0 fw-bold">
+                <i class="fa-solid {{ ikona }} me-2"></i>{{ akcja }}
+            </h4>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- Sekcja: Dane osobowe -->
+                <h6 class="fw-bold text-muted text-uppercase small mb-3 mt-2">
+                    <i class="fa-solid fa-user me-2"></i>Dane osobowe
+                </h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">{{ form.tytul.label }}</label>
+                        {{ form.tytul }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">{{ form.imie.label }} *</label>
+                        {{ form.imie }}
+                        {% if form.imie.errors %}<div class="text-danger small">{{ form.imie.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">{{ form.nazwisko.label }} *</label>
+                        {{ form.nazwisko }}
+                        {% if form.nazwisko.errors %}<div class="text-danger small">{{ form.nazwisko.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">{{ form.plec.label }}</label>
+                        {{ form.plec }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">{{ form.specjalizacja.label }} *</label>
+                        {{ form.specjalizacja }}
+                        {% if form.specjalizacja.errors %}<div class="text-danger small">{{ form.specjalizacja.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold small">{{ form.doswiadczenie_lat.label }}</label>
+                        {{ form.doswiadczenie_lat }}
+                    </div>
+                </div>
+
+                <hr>
+                <!-- Sekcja: Opis i ocena -->
+                <h6 class="fw-bold text-muted text-uppercase small mb-3">
+                    <i class="fa-solid fa-id-card me-2"></i>O lekarzu
+                </h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold small">{{ form.opis.label }} *</label>
+                        {{ form.opis }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">{{ form.ocena.label }}</label>
+                        {{ form.ocena }}
+                        {% if form.ocena.errors %}<div class="text-danger small">{{ form.ocena.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">{{ form.liczba_opinii.label }}</label>
+                        {{ form.liczba_opinii }}
+                    </div>
+                </div>
+
+                <hr>
+                <!-- Sekcja: Dostępność -->
+                <h6 class="fw-bold text-muted text-uppercase small mb-3">
+                    <i class="fa-solid fa-calendar me-2"></i>Godziny pracy
+                </h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">{{ form.godz_pracy.label }}</label>
+                        {{ form.godz_pracy }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">{{ form.dni_pracy.label }}</label>
+                        {{ form.dni_pracy }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">{{ form.czas_wizyty_min.label }}</label>
+                        {{ form.czas_wizyty_min }}
+                    </div>
+                </div>
+
+                <hr>
+                <!-- Sekcja: Lokalizacja i cena -->
+                <h6 class="fw-bold text-muted text-uppercase small mb-3">
+                    <i class="fa-solid fa-location-dot me-2"></i>Lokalizacja i cena
+                </h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">{{ form.nr_gabinetu.label }}</label>
+                        {{ form.nr_gabinetu }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">{{ form.miasto.label }}</label>
+                        {{ form.miasto }}
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold small">{{ form.adres.label }}</label>
+                        {{ form.adres }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">{{ form.cena_wizyty.label }}</label>
+                        <div class="input-group">
+                            {{ form.cena_wizyty }}
+                            <span class="input-group-text">zł</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <div class="form-check mb-2">
+                            {{ form.aktywny }}
+                            <label class="form-check-label fw-semibold small" for="{{ form.aktywny.id_for_label }}">
+                                {{ form.aktywny.label }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Przyciski -->
+                <div class="d-flex gap-3 mt-4 pt-3 border-top">
+                    <a href="{% url 'panel' %}" class="btn btn-outline-secondary px-4">
+                        <i class="fa-solid fa-arrow-left me-2"></i>Anuluj
+                    </a>
+                    <button type="submit" class="btn btn-primary px-5">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Zapisz
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

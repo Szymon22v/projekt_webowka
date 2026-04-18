@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Strona główna{% endblock %}
+
+{% block content %}
+
+<!-- ══ HERO SEKCJA ══════════════════════════════════════════════════════════ -->
+<section class="hero-section">
+    <div class="container py-5">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-7">
+                <div class="hero-badge mb-3">
+                    <i class="fa-solid fa-shield-heart me-2"></i>Zaufany portal rezerwacji
+                </div>
+                <h1 class="hero-title display-4 fw-bold mb-4">
+                    Znajdź lekarza<br>
+                    <span class="text-primary-light">i zarezerwuj wizytę</span>
+                </h1>
+                <p class="lead text-white-75 mb-5">
+                    Dostęp do najlepszych specjalistów w Twojej okolicy.
+                    Wybierz termin online – szybko, wygodnie, 24/7.
+                </p>
+
+                <!-- Wyszukiwarka (JS Element #2: dynamiczne podpowiedzi) -->
+                <form method="GET" action="{% url 'lista_lekarzy' %}" class="hero-search-form">
+                    <div class="search-container">
+                        <div class="search-icon">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
+                        <input type="text" name="szukaj" id="hero-search"
+                               class="search-input"
+                               placeholder="Szukaj specjalizacji lub nazwiska lekarza..."
+                               autocomplete="off">
+                        <!-- Podpowiedzi tworzone dynamicznie przez JS -->
+                        <ul id="search-suggestions" class="search-suggestions"></ul>
+                        <button type="submit" class="search-btn">
+                            <i class="fa-solid fa-arrow-right me-2"></i>Szukaj
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Popularne specjalizacje jako szybkie linki -->
+                <div class="quick-links mt-3">
+                    <span class="text-white-75 small me-2">Popularne:</span>
+                    {% for spec in specjalizacje|slice:":4" %}
+                    <a href="{% url 'lista_lekarzy' %}?specjalizacja={{ spec.pk }}"
+                       class="quick-link-chip">
+                        <i class="fa-solid {{ spec.ikona_fa }} fa-xs me-1"></i>{{ spec.nazwa }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <div class="hero-illustration">
+                    <i class="fa-solid fa-hospital fa-8x text-white-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ STATYSTYKI (JS Element #1: animowane liczniki) ═══════════════════════ -->
+<section class="stats-section py-4 bg-white shadow-sm">
+    <div class="container">
+        <div class="row g-0 text-center">
+            <div class="col-6 col-md-3 stat-item" data-target="{{ statystyki.lekarze }}">
+                <div class="stat-number text-primary fw-bold">0</div>
+                <div class="stat-label text-muted small">
+                    <i class="fa-solid fa-user-doctor me-1"></i>Lekarzy
+                </div>
+            </div>
+            <div class="col-6 col-md-3 stat-item" data-target="{{ statystyki.specjalizacje }}">
+                <div class="stat-number text-success fw-bold">0</div>
+                <div class="stat-label text-muted small">
+                    <i class="fa-solid fa-stethoscope me-1"></i>Specjalizacji
+                </div>
+            </div>
+            <div class="col-6 col-md-3 stat-item" data-target="{{ statystyki.wizyty }}">
+                <div class="stat-number text-warning fw-bold">0</div>
+                <div class="stat-label text-muted small">
+                    <i class="fa-solid fa-calendar-check me-1"></i>Odbytych wizyt
+                </div>
+            </div>
+            <div class="col-6 col-md-3 stat-item" data-target="{{ statystyki.pacjenci }}">
+                <div class="stat-number text-info fw-bold">0</div>
+                <div class="stat-label text-muted small">
+                    <i class="fa-solid fa-users me-1"></i>Pacjentów
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ KAFELKI SPECJALIZACJI ════════════════════════════════════════════════ -->
+<section class="container py-5">
+    <div class="section-header text-center mb-5">
+        <h2 class="fw-bold">Wybierz specjalizację</h2>
+        <p class="text-muted">Kliknij w specjalizację, aby zobaczyć dostępnych lekarzy</p>
+    </div>
+
+    <div class="row g-4 spec-grid">
+        {% for spec in specjalizacje %}
+        <div class="col-6 col-md-4 col-lg-3 spec-card-wrapper" style="opacity:0; transform:translateY(30px)">
+            <a href="{% url 'lista_lekarzy' %}?specjalizacja={{ spec.pk }}"
+               class="spec-card text-decoration-none">
+                <div class="spec-card-icon bg-{{ spec.kolor_karty }} bg-opacity-10">
+                    <i class="fa-solid {{ spec.ikona_fa }} text-{{ spec.kolor_karty }}"></i>
+                </div>
+                <div class="spec-card-body">
+                    <h6 class="spec-card-title fw-bold">{{ spec.nazwa }}</h6>
+                    <p class="spec-card-count text-muted small mb-0">
+                        {{ spec.lekarze.count }} lekarz{% if spec.lekarze.count == 1 %}{% elif spec.lekarze.count < 5 %}e{% else %}y{% endif %}
+                    </p>
+                </div>
+                <div class="spec-card-arrow text-{{ spec.kolor_karty }}">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ══ JAK TO DZIAŁA ════════════════════════════════════════════════════════ -->
+<section class="how-it-works bg-light py-5">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-5">Jak to działa?</h2>
+        <div class="row g-4 text-center">
+            <div class="col-md-4 how-step">
+                <div class="step-number">1</div>
+                <div class="step-icon text-primary mb-3">
+                    <i class="fa-solid fa-magnifying-glass fa-2x"></i>
+                </div>
+                <h5 class="fw-bold">Wybierz specjalistę</h5>
+                <p class="text-muted">Przeglądaj lekarzy według specjalizacji, miasta lub ocen pacjentów.</p>
+            </div>
+            <div class="col-md-4 how-step">
+                <div class="step-number">2</div>
+                <div class="step-icon text-success mb-3">
+                    <i class="fa-solid fa-calendar-days fa-2x"></i>
+                </div>
+                <h5 class="fw-bold">Wybierz termin</h5>
+                <p class="text-muted">Kliknij wolny termin w kalendarzu lekarza. Widzisz dostępne godziny w czasie rzeczywistym.</p>
+            </div>
+            <div class="col-md-4 how-step">
+                <div class="step-number">3</div>
+                <div class="step-icon text-warning mb-3">
+                    <i class="fa-solid fa-circle-check fa-2x"></i>
+                </div>
+                <h5 class="fw-bold">Gotowe!</h5>
+                <p class="text-muted">Podaj swoje dane i potwierdź. Wizyta jest zapisana – sprawdzisz ją w zakładce „Moje wizyty".</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Dane specjalizacji dla JS autocomplete -->
+<script>
+const specjalizacjeData = [
+    {% for spec in specjalizacje %}"{{ spec.nazwa }}"{% if not forloop.last %},{% endif %}{% endfor %}
+];
+</script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Animowane pojawianie się kafelków specjalizacji (scroll reveal) ──────────
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+            setTimeout(() => {
+                entry.target.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }, entry.target.dataset.delay || 0);
+            observer.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.spec-card-wrapper').forEach((el, i) => {
+    el.dataset.delay = i * 60;
+    observer.observe(el);
+});
+
+// ── Animowane liczniki statystyk ─────────────────────────────────────────────
+function animujLicznik(el, target, czas = 1500) {
+    const krok = target / (czas / 16);
+    let aktualny = 0;
+    const timer = setInterval(() => {
+        aktualny += krok;
+        if (aktualny >= target) {
+            el.textContent = target.toLocaleString('pl-PL');
+            clearInterval(timer);
+        } else {
+            el.textContent = Math.floor(aktualny).toLocaleString('pl-PL');
+        }
+    }, 16);
+}
+
+const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const numEl = entry.target.querySelector('.stat-number');
+            const target = parseInt(entry.target.dataset.target, 10);
+            animujLicznik(numEl, target);
+            statsObserver.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.stat-item').forEach(el => statsObserver.observe(el));
+</script>
+{% endblock %}

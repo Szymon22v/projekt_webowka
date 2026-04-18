@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ lekarz.tytul_i_nazwisko }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- Breadcrumb nawigacja -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'strona_glowna' %}">Strona główna</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'lista_lekarzy' %}">Lekarze</a></li>
+            <li class="breadcrumb-item active">{{ lekarz.tytul_i_nazwisko }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+
+        <!-- ══ PROFIL LEKARZA (lewa strona) ════════════════════════════════════ -->
+        <div class="col-lg-4">
+
+            <!-- Karta z podstawowymi danymi -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-top-bar-lg bg-{{ lekarz.specjalizacja.kolor_karty }}"></div>
+                <div class="card-body p-4 text-center">
+                    <!-- Avatar lekarza -->
+                    <div class="doctor-avatar-lg bg-{{ lekarz.specjalizacja.kolor_karty }} bg-opacity-10 mx-auto mb-3">
+                        <i class="fa-solid {{ lekarz.specjalizacja.ikona_fa }}
+                           fa-3x text-{{ lekarz.specjalizacja.kolor_karty }}"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">{{ lekarz.tytul_i_nazwisko }}</h3>
+                    <span class="badge bg-{{ lekarz.specjalizacja.kolor_karty }} fs-6 mb-3">
+                        <i class="fa-solid {{ lekarz.specjalizacja.ikona_fa }} me-1"></i>
+                        {{ lekarz.specjalizacja.nazwa }}
+                    </span>
+
+                    <!-- Ocena z gwiazdkami -->
+                    <div class="rating-display mb-3">
+                        <div class="stars-large text-warning mb-1">
+                            {% with lekarz.ocena|floatformat:0 as g %}
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= g|add:0 %}
+                                    <i class="fa-solid fa-star fa-lg"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-star fa-lg"></i>
+                                {% endif %}
+                            {% endfor %}
+                            {% endwith %}
+                        </div>
+                        <span class="fw-bold fs-5">{{ lekarz.ocena }}/5</span>
+                        <span class="text-muted small">({{ lekarz.liczba_opinii }} opinii)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Szczegóły -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-circle-info me-2 text-primary"></i>Informacje
+                    </h6>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                        <span class="text-muted small">
+                            <i class="fa-solid fa-location-dot fa-fw me-2"></i>Miasto
+                        </span>
+                        <span class="fw-semibold small">{{ lekarz.miasto }}</span>
+                    </li>
+                    {% if lekarz.adres %}
+                    <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                        <span class="text-muted small">
+                            <i class="fa-solid fa-map-pin fa-fw me-2"></i>Adres
+                        </span>
+                        <span class="fw-semibold small text-end" style="max-width:60%">{{ lekarz.adres }}</span>
+                    </li>
+                    {% endif %}
+                    <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                        <span class="text-muted small">
+                            <i class="fa-solid fa-clock fa-fw me-2"></i>Godziny
+                        </span>
+                        <span class="fw-semibold small">{{ lekarz.godz_pracy }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                        <span class="text-muted small">
+                            <i class="fa-solid fa-hourglass-half fa-fw me-2"></i>Czas wizyty
+                        </span>
+                        <span class="fw-semibold small">{{ lekarz.czas_wizyty_min }} min</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                        <span class="text-muted small">
+                            <i class="fa-solid fa-briefcase fa-fw me-2"></i>Doświadczenie
+                        </span>
+                        <span class="fw-semibold small">{{ lekarz.doswiadczenie_lat }} lat</span>
+                    </li>
+                    {% if lekarz.nr_gabinetu %}
+                    <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                        <span class="text-muted small">
+                            <i class="fa-solid fa-door-open fa-fw me-2"></i>Gabinet
+                        </span>
+                        <span class="fw-semibold small">{{ lekarz.nr_gabinetu }}</span>
+                    </li>
+                    {% endif %}
+                    <li class="list-group-item px-4 py-3 bg-primary bg-opacity-5">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">
+                                <i class="fa-solid fa-tag fa-fw me-2"></i>Cena wizyty
+                            </span>
+                            <span class="fw-bold text-primary fs-5">{{ lekarz.cena_wizyty|floatformat:0 }} zł</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- ══ O LEKARZU + REZERWACJA TERMINU (prawa strona) ════════════════════ -->
+        <div class="col-lg-8">
+
+            <!-- Opis lekarza -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-id-card me-2 text-primary"></i>O lekarzu
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted mb-0" style="line-height:1.8">{{ lekarz.opis }}</p>
+                </div>
+            </div>
+
+            <!-- ══ WYBÓR TERMINU (JS Element #3: dynamiczny kalendarz + sloty) ═══ -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-calendar-plus me-2"></i>Zarezerwuj wizytę
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+
+                    <!-- Krok 1: Wybór daty -->
+                    <div class="booking-step mb-4">
+                        <h6 class="fw-bold mb-3">
+                            <span class="step-badge">1</span>
+                            Wybierz datę
+                        </h6>
+                        <input type="date" id="date-picker"
+                               class="form-control form-control-lg"
+                               min="{{ form.data.field.widget.attrs.min }}"
+                               max="{{ form.data.field.widget.attrs.max }}"
+                               style="max-width:280px">
+
+                        <!-- Mini-kalendarz dostępności (generowany przez JS) -->
+                        <div id="availability-hint" class="mt-2 text-muted small d-none">
+                            <i class="fa-solid fa-circle-info me-1"></i>
+                            <span id="availability-text"></span>
+                        </div>
+                    </div>
+
+                    <!-- Krok 2: Wybór godziny (dynamicznie ładowany przez JS) -->
+                    <div class="booking-step mb-4" id="time-step" style="display:none">
+                        <h6 class="fw-bold mb-3">
+                            <span class="step-badge">2</span>
+                            Wybierz godzinę
+                            <span id="selected-date-label" class="text-muted fw-normal small"></span>
+                        </h6>
+                        <div id="slots-loading" class="text-center py-3 d-none">
+                            <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                            Ładuję dostępne terminy...
+                        </div>
+                        <div id="slots-container" class="slots-grid"></div>
+                        <div id="slots-empty" class="alert alert-warning d-none">
+                            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                            Brak wolnych terminów w tym dniu. Wybierz inną datę.
+                        </div>
+                    </div>
+
+                    <!-- Krok 3: Przycisk dalej (pojawia się po wyborze godziny) -->
+                    <div id="proceed-step" style="display:none">
+                        <h6 class="fw-bold mb-3">
+                            <span class="step-badge">3</span>
+                            Podaj swoje dane
+                        </h6>
+                        <div class="selected-slot-summary alert alert-success mb-3">
+                            <i class="fa-solid fa-calendar-check me-2"></i>
+                            Wybrany termin:
+                            <strong id="summary-date"></strong> o
+                            <strong id="summary-time"></strong>
+                            <span class="float-end">
+                                <button id="change-slot" class="btn btn-sm btn-outline-success">
+                                    <i class="fa-solid fa-pencil me-1"></i>Zmień
+                                </button>
+                            </span>
+                        </div>
+                        <a id="proceed-btn" href="#" class="btn btn-primary btn-lg w-100">
+                            <i class="fa-solid fa-arrow-right me-2"></i>Przejdź do formularza rezerwacji
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Dane dostępności dla JS -->
+<script>
+const LEKARZ_PK = {{ lekarz.pk }};
+const DOSTEPNOSC = {{ dostepnosc_json|safe }};
+const API_URL = "{% url 'api_sloty' lekarz.pk %}";
+const REZERWACJA_BASE = "{% url 'rezerwacja' lekarz.pk %}";
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ══ JS Element #3: Dynamiczny wybór terminu wizyty ════════════════════════════
+//
+// Jak to działa:
+// 1. Pacjent wybiera datę w date-pickerze
+// 2. JS wywołuje fetch() do API endpointu /lekarze/<pk>/sloty/?data=YYYY-MM-DD
+// 3. API zwraca JSON z listą wolnych godzin
+// 4. JS dynamicznie tworzy przyciski godzin (slot buttons)
+// 5. Po kliknięciu godziny pojawia się przycisk "Przejdź do formularza"
+
+const datePicker = document.getElementById('date-picker');
+const timeStep = document.getElementById('time-step');
+const proceedStep = document.getElementById('proceed-step');
+const slotsContainer = document.getElementById('slots-container');
+const slotsLoading = document.getElementById('slots-loading');
+const slotsEmpty = document.getElementById('slots-empty');
+const availabilityHint = document.getElementById('availability-hint');
+const availabilityText = document.getElementById('availability-text');
+const proceedBtn = document.getElementById('proceed-btn');
+
+let wybranaData = '';
+let wybranaGodzina = '';
+
+// ── Reaguj na zmianę daty ──────────────────────────────────────────────────
+datePicker.addEventListener('change', async function () {
+    wybranaData = this.value;
+    wybranaGodzina = '';
+
+    if (!wybranaData) return;
+
+    // Pokaż krок 2
+    timeStep.style.display = 'block';
+    proceedStep.style.display = 'none';
+    slotsContainer.innerHTML = '';
+    slotsEmpty.classList.add('d-none');
+    slotsLoading.classList.remove('d-none');
+
+    // Etykieta daty
+    const dateObj = new Date(wybranaData + 'T00:00:00');
+    const labelDate = dateObj.toLocaleDateString('pl-PL', {
+        weekday: 'long', day: 'numeric', month: 'long'
+    });
+    document.getElementById('selected-date-label').textContent = `– ${labelDate}`;
+
+    // Dostępność z pre-załadowanych danych
+    const wolne = DOSTEPNOSC[wybranaData];
+    if (wolne !== undefined) {
+        availabilityHint.classList.remove('d-none');
+        availabilityText.textContent = wolne > 0
+            ? `${wolne} wolnych terminów w tym dniu`
+            : 'Brak wolnych terminów';
+    }
+
+    // Pobierz sloty przez Fetch API
+    try {
+        const res = await fetch(`${API_URL}?data=${wybranaData}`);
+        const data = await res.json();
+        slotsLoading.classList.add('d-none');
+
+        if (!data.sloty || data.sloty.length === 0) {
+            slotsEmpty.classList.remove('d-none');
+            return;
+        }
+
+        // Dynamiczne tworzenie przycisków slotów
+        data.sloty.forEach(godzina => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'slot-btn btn btn-outline-primary btn-sm';
+            btn.textContent = godzina;
+            btn.dataset.godzina = godzina;
+
+            btn.addEventListener('click', function () {
+                // Odznacz poprzednio wybrany
+                document.querySelectorAll('.slot-btn').forEach(b => {
+                    b.classList.remove('btn-primary', 'active');
+                    b.classList.add('btn-outline-primary');
+                });
+                // Zaznacz ten
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-primary', 'active');
+
+                wybranaGodzina = godzina;
+
+                // Krok 3: pokaż podsumowanie i przycisk
+                document.getElementById('summary-date').textContent = labelDate;
+                document.getElementById('summary-time').textContent = godzina;
+                proceedBtn.href = `${REZERWACJA_BASE}?data=${wybranaData}&godzina=${godzina}`;
+
+                // Animowane pojawienie się kroku 3
+                proceedStep.style.opacity = '0';
+                proceedStep.style.display = 'block';
+                requestAnimationFrame(() => {
+                    proceedStep.style.transition = 'opacity 0.3s ease';
+                    proceedStep.style.opacity = '1';
+                });
+            });
+
+            slotsContainer.appendChild(btn);
+        });
+
+    } catch (err) {
+        slotsLoading.classList.add('d-none');
+        slotsContainer.innerHTML = '<div class="text-danger small">Błąd ładowania terminów.</div>';
+    }
+});
+
+// ── Przycisk "Zmień termin" ────────────────────────────────────────────────
+document.getElementById('change-slot')?.addEventListener('click', function () {
+    proceedStep.style.display = 'none';
+    document.querySelectorAll('.slot-btn').forEach(b => {
+        b.classList.remove('btn-primary', 'active');
+        b.classList.add('btn-outline-primary');
+    });
+    wybranaGodzina = '';
+});
+</script>
+{% endblock %}

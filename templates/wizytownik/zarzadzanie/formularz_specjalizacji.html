@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Dodaj specjalizację{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 600px">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'panel' %}">Panel</a></li>
+            <li class="breadcrumb-item active">Dodaj specjalizację</li>
+        </ol>
+    </nav>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fa-solid fa-stethoscope me-2"></i>Nowa specjalizacja</h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                    <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+                </div>
+                {% endfor %}
+                <div class="d-flex gap-3 mt-3">
+                    <a href="{% url 'panel' %}" class="btn btn-outline-secondary">Anuluj</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Zapisz
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

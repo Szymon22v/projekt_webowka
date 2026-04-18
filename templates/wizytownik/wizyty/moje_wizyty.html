@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Moje wizyty{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 900px">
+
+    <div class="page-header mb-4">
+        <h1 class="fw-bold">
+            <i class="fa-solid fa-calendar-check me-2 text-primary"></i>Moje wizyty
+        </h1>
+        <p class="text-muted">Wpisz adres e-mail użyty przy rezerwacji, aby zobaczyć swoje wizyty.</p>
+    </div>
+
+    <!-- Formularz wyszukiwania -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <form method="GET" action="{% url 'moje_wizyty' %}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">
+                            <i class="fa-solid fa-envelope me-1 text-primary"></i>
+                            {{ form.email.label }}
+                        </label>
+                        {{ form.email }}
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fa-solid fa-magnifying-glass me-2"></i>Szukaj wizyt
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Wyniki -->
+    {% if pacjent %}
+    <div class="mb-3">
+        <h5 class="fw-semibold">
+            <i class="fa-solid fa-user me-2"></i>
+            Wizyty dla: {{ pacjent.imie }} {{ pacjent.nazwisko }}
+        </h5>
+        <span class="text-muted small">
+            <i class="fa-solid fa-list me-1"></i>
+            {{ wizyty.count }} wizyt{% if wizyty.count == 1 %}a{% elif wizyty.count < 5 %}y{% else %}{% endif %}
+        </span>
+    </div>
+
+    {% if wizyty %}
+    {% for wizyta in wizyty %}
+    <div class="card border-0 shadow-sm mb-3 wizyta-row">
+        <div class="card-body p-4">
+            <div class="row align-items-center g-3">
+                <!-- Lekarz i specjalizacja -->
+                <div class="col-md-5">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="mini-avatar bg-{{ wizyta.lekarz.specjalizacja.kolor_karty }} bg-opacity-10 rounded-circle p-2">
+                            <i class="fa-solid {{ wizyta.lekarz.specjalizacja.ikona_fa }}
+                               text-{{ wizyta.lekarz.specjalizacja.kolor_karty }}"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">{{ wizyta.lekarz.tytul_i_nazwisko }}</div>
+                            <div class="text-muted small">{{ wizyta.lekarz.specjalizacja.nazwa }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Termin -->
+                <div class="col-md-3">
+                    <div class="fw-semibold">
+                        <i class="fa-solid fa-calendar fa-fw me-1 text-primary"></i>
+                        {{ wizyta.data|date:"d.m.Y" }}
+                    </div>
+                    <div class="text-muted small">
+                        <i class="fa-solid fa-clock fa-fw me-1"></i>
+                        {{ wizyta.godzina|time:"H:i" }}
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="col-md-2 text-center">
+                    <span class="badge bg-{{ wizyta.status_badge_kolor }} fs-6">
+                        {% if wizyta.status == 'oczekujaca' %}<i class="fa-solid fa-hourglass-half me-1"></i>
+                        {% elif wizyta.status == 'potwierdzona' %}<i class="fa-solid fa-circle-check me-1"></i>
+                        {% elif wizyta.status == 'odbyta' %}<i class="fa-solid fa-check-double me-1"></i>
+                        {% else %}<i class="fa-solid fa-xmark me-1"></i>
+                        {% endif %}
+                        {{ wizyta.get_status_display }}
+                    </span>
+                </div>
+
+                <!-- Akcje -->
+                <div class="col-md-2 text-end">
+                    {% if wizyta.czy_przyszla and wizyta.status in 'oczekujaca potwierdzona' %}
+                    <a href="{% url 'anuluj_wizyte' wizyta.pk %}"
+                       class="btn btn-sm btn-outline-danger"
+                       onclick="return confirm('Czy na pewno chcesz anulować tę wizytę?')">
+                        <i class="fa-solid fa-xmark me-1"></i>Anuluj
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if wizyta.powod_wizyty %}
+            <hr class="my-2">
+            <p class="text-muted small mb-0">
+                <i class="fa-solid fa-comment me-1"></i>{{ wizyta.powod_wizyty }}
+            </p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    {% else %}
+    <div class="text-center py-4">
+        <i class="fa-solid fa-calendar-xmark fa-3x text-muted mb-3 d-block"></i>
+        <p class="text-muted">Brak wizyt dla tego konta.</p>
+        <a href="{% url 'lista_lekarzy' %}" class="btn btn-primary">
+            <i class="fa-solid fa-calendar-plus me-2"></i>Umów pierwszą wizytę
+        </a>
+    </div>
+    {% endif %}
+
+    {% elif request.GET.email %}
+    <!-- Brak wyników -->
+    <div class="alert alert-warning">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+        Nie znaleziono konta dla podanego adresu e-mail.
+        Sprawdź czy adres jest poprawny lub
+        <a href="{% url 'lista_lekarzy' %}">umów pierwszą wizytę</a>.
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Wizyta zarezerwowana{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center" style="max-width:600px">
+
+    <!-- Ikona sukcesu (animowana przez CSS) -->
+    <div class="success-animation mb-4">
+        <div class="success-circle">
+            <i class="fa-solid fa-circle-check fa-5x text-success"></i>
+        </div>
+    </div>
+
+    <h2 class="fw-bold mb-2">Wizyta zarezerwowana!</h2>
+    <p class="text-muted mb-5">
+        Twoja wizyta została pomyślnie zarezerwowana.<br>
+        Pamiętaj, że możesz ją sprawdzić lub anulować w zakładce „Moje wizyty".
+    </p>
+
+    <!-- Karta podsumowania -->
+    <div class="card border-0 shadow-sm mb-4 text-start">
+        <div class="card-header bg-success text-white">
+            <h6 class="mb-0 fw-semibold">
+                <i class="fa-solid fa-receipt me-2"></i>Szczegóły wizyty
+            </h6>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                <span class="text-muted"><i class="fa-solid fa-user-doctor fa-fw me-2"></i>Lekarz</span>
+                <strong>{{ wizyta.lekarz.tytul_i_nazwisko }}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                <span class="text-muted"><i class="fa-solid fa-stethoscope fa-fw me-2"></i>Specjalizacja</span>
+                <strong>{{ wizyta.lekarz.specjalizacja.nazwa }}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                <span class="text-muted"><i class="fa-solid fa-calendar fa-fw me-2"></i>Data</span>
+                <strong>{{ wizyta.data|date:"l, d F Y" }}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                <span class="text-muted"><i class="fa-solid fa-clock fa-fw me-2"></i>Godzina</span>
+                <strong>{{ wizyta.godzina|time:"H:i" }}</strong>
+            </li>
+            {% if wizyta.lekarz.adres %}
+            <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                <span class="text-muted"><i class="fa-solid fa-location-dot fa-fw me-2"></i>Adres</span>
+                <strong>{{ wizyta.lekarz.adres }}</strong>
+            </li>
+            {% endif %}
+            <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                <span class="text-muted"><i class="fa-solid fa-user fa-fw me-2"></i>Pacjent</span>
+                <strong>{{ wizyta.pacjent.imie }} {{ wizyta.pacjent.nazwisko }}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-4 py-3 bg-success bg-opacity-5">
+                <span class="text-muted"><i class="fa-solid fa-tag fa-fw me-2"></i>Status</span>
+                <span class="badge bg-warning text-dark">
+                    <i class="fa-solid fa-hourglass-half me-1"></i>Oczekująca
+                </span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Numer rezerwacji -->
+    <div class="alert alert-info">
+        <i class="fa-solid fa-hashtag me-2"></i>
+        Numer rezerwacji: <strong>#{{ wizyta.pk|stringformat:"05d" }}</strong>
+        <div class="small mt-1 text-muted">
+            Zapisz numer i adres e-mail <strong>{{ wizyta.pacjent.email }}</strong>
+            – będą potrzebne przy sprawdzaniu wizyt.
+        </div>
+    </div>
+
+    <!-- Przyciski nawigacji -->
+    <div class="d-flex gap-3 justify-content-center">
+        <a href="{% url 'moje_wizyty' %}?email={{ wizyta.pacjent.email }}"
+           class="btn btn-success btn-lg">
+            <i class="fa-solid fa-calendar-check me-2"></i>Moje wizyty
+        </a>
+        <a href="{% url 'strona_glowna' %}" class="btn btn-outline-secondary btn-lg">
+            <i class="fa-solid fa-house me-2"></i>Strona główna
+        </a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Animacja ikony sukcesu
+document.addEventListener('DOMContentLoaded', function() {
+    const circle = document.querySelector('.success-circle');
+    circle.style.opacity = '0';
+    circle.style.transform = 'scale(0.5)';
+    setTimeout(() => {
+        circle.style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        circle.style.opacity = '1';
+        circle.style.transform = 'scale(1)';
+    }, 100);
+});
+</script>
+{% endblock %}

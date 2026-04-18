@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Rezerwacja wizyty{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 800px">
+
+    <!-- Nagłówek z podsumowaniem wybranego terminu -->
+    <div class="booking-header text-center mb-5">
+        <div class="step-icon-lg text-primary mx-auto mb-3">
+            <i class="fa-solid fa-calendar-plus fa-3x"></i>
+        </div>
+        <h2 class="fw-bold">Podaj swoje dane</h2>
+        <p class="text-muted">Krok ostatni – uzupełnij formularz, aby potwierdzić wizytę</p>
+    </div>
+
+    <!-- Pasek podsumowania (lekarz + termin) -->
+    <div class="booking-summary-bar card border-0 bg-primary text-white shadow mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="summary-icon bg-white bg-opacity-25 rounded-circle p-2">
+                            <i class="fa-solid {{ lekarz.specjalizacja.ikona_fa }} fa-lg"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-5">{{ lekarz.tytul_i_nazwisko }}</div>
+                            <div class="text-white-75 small">{{ lekarz.specjalizacja.nazwa }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-md-center">
+                    <div class="fw-bold">
+                        <i class="fa-solid fa-calendar me-2 text-white-75"></i>
+                        {{ wybrana_data|date:"l, d.m.Y" }}
+                    </div>
+                </div>
+                <div class="col-md-2 text-md-center">
+                    <div class="fw-bold">
+                        <i class="fa-solid fa-clock me-2 text-white-75"></i>
+                        {{ wybrana_godzina }}
+                    </div>
+                </div>
+                <div class="col-md-1 text-end">
+                    <a href="{% url 'profil_lekarza' lekarz.pk %}"
+                       class="btn btn-sm btn-outline-light">
+                        <i class="fa-solid fa-pencil"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formularz danych pacjenta -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light py-3">
+            <h5 class="mb-0 fw-semibold">
+                <i class="fa-solid fa-user me-2 text-primary"></i>Dane pacjenta
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST">
+                {% csrf_token %}
+                <!-- Ukryte pola z wybranym terminem -->
+                <input type="hidden" name="data" value="{{ wybrana_data|date:'Y-m-d' }}">
+                <input type="hidden" name="godzina" value="{{ wybrana_godzina }}">
+
+                <div class="row g-3">
+                    <!-- Imię i Nazwisko -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            {{ form.imie.label }} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.imie }}
+                        {% if form.imie.errors %}
+                            <div class="text-danger small mt-1">{{ form.imie.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            {{ form.nazwisko.label }} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.nazwisko }}
+                        {% if form.nazwisko.errors %}
+                            <div class="text-danger small mt-1">{{ form.nazwisko.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            {{ form.email.label }} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.email }}
+                        <div class="form-text">
+                            <i class="fa-solid fa-circle-info me-1"></i>
+                            Użyjesz tego e-maila do sprawdzenia swoich wizyt
+                        </div>
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Telefon -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            {{ form.telefon.label }} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.telefon }}
+                        {% if form.telefon.errors %}
+                            <div class="text-danger small mt-1">{{ form.telefon.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Data urodzenia i PESEL -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.data_urodzenia.label }}</label>
+                        {{ form.data_urodzenia }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.pesel.label }}</label>
+                        {{ form.pesel }}
+                    </div>
+
+                    <!-- Powód wizyty -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Powód wizyty / objawy</label>
+                        <textarea name="powod_wizyty" class="form-control" rows="3"
+                                  placeholder="Opcjonalnie – opisz swoje dolegliwości lub powód wizyty..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Regulamin -->
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="regulamin" required>
+                    <label class="form-check-label text-muted small" for="regulamin">
+                        Wyrażam zgodę na przetwarzanie danych osobowych w celu realizacji wizyty.
+                        (To jest projekt edukacyjny – dane nie są prawdziwe.)
+                    </label>
+                </div>
+
+                <!-- Przyciski -->
+                <div class="d-flex gap-3 mt-4">
+                    <a href="{% url 'profil_lekarza' lekarz.pk %}"
+                       class="btn btn-outline-secondary px-4">
+                        <i class="fa-solid fa-arrow-left me-2"></i>Wróć
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                        <i class="fa-solid fa-calendar-check me-2"></i>
+                        Potwierdź rezerwację
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

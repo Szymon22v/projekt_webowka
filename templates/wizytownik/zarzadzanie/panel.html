@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Panel zarządzania{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold h3">
+            <i class="fa-solid fa-gauge me-2 text-primary"></i>Panel zarządzania
+        </h1>
+        <div class="d-flex gap-2">
+            <a href="{% url 'dodaj_lekarza' %}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-user-plus me-1"></i>Dodaj lekarza
+            </a>
+            <a href="{% url 'dodaj_specjalizacje' %}" class="btn btn-outline-primary btn-sm">
+                <i class="fa-solid fa-plus me-1"></i>Dodaj specjalizację
+            </a>
+        </div>
+    </div>
+
+    <!-- Kafelki statystyk -->
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3 stat-panel-card" style="cursor:pointer"
+                 onclick="location.href='{% url 'lista_lekarzy' %}'">
+                <i class="fa-solid fa-user-doctor fa-2x text-primary mb-2"></i>
+                <div class="h3 fw-bold mb-0">{{ liczba_lekarzy }}</div>
+                <div class="text-muted small">Aktywni lekarze</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3 stat-panel-card">
+                <i class="fa-solid fa-users fa-2x text-success mb-2"></i>
+                <div class="h3 fw-bold mb-0">{{ liczba_pacjentow }}</div>
+                <div class="text-muted small">Pacjenci</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3 stat-panel-card"
+                 style="cursor:pointer" onclick="location.href='{% url 'lista_wizyt_admin' %}'">
+                <i class="fa-solid fa-calendar-day fa-2x text-warning mb-2"></i>
+                <div class="h3 fw-bold mb-0">{{ wizyty_dzisiaj }}</div>
+                <div class="text-muted small">Wizyty dziś</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3 stat-panel-card"
+                 style="cursor:pointer"
+                 onclick="location.href='{% url 'lista_wizyt_admin' %}?status=oczekujaca'">
+                <i class="fa-solid fa-hourglass-half fa-2x text-danger mb-2"></i>
+                <div class="h3 fw-bold mb-0">{{ wizyty_oczekujace }}</div>
+                <div class="text-muted small">Oczekujące wizyty</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Ostatnie wizyty -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Ostatnie rezerwacje
+                    </h6>
+                    <a href="{% url 'lista_wizyt_admin' %}" class="btn btn-sm btn-outline-primary">
+                        Wszystkie <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th><th>Pacjent</th><th>Lekarz</th>
+                                <th>Termin</th><th>Status</th><th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for w in ostatnie_wizyty %}
+                        <tr>
+                            <td class="text-muted small">#{{ w.pk }}</td>
+                            <td>
+                                <div class="fw-semibold small">{{ w.pacjent.imie }} {{ w.pacjent.nazwisko }}</div>
+                                <div class="text-muted" style="font-size:0.75rem">{{ w.pacjent.email }}</div>
+                            </td>
+                            <td class="small">{{ w.lekarz.nazwisko }}</td>
+                            <td class="small">
+                                {{ w.data|date:"d.m.Y" }}<br>
+                                <span class="text-muted">{{ w.godzina|time:"H:i" }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ w.status_badge_kolor }}">
+                                    {{ w.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <form method="POST" action="{% url 'zmien_status_wizyty' w.pk %}"
+                                      class="d-inline">
+                                    {% csrf_token %}
+                                    <select name="status" class="form-select form-select-sm"
+                                            onchange="this.form.submit()" style="min-width:130px">
+                                        <option value="">Zmień status...</option>
+                                        {% for val, label in statusy %}
+                                        <option value="{{ val }}" {% if w.status == val %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista specjalizacji -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-stethoscope me-2 text-primary"></i>Specjalizacje
+                    </h6>
+                    <a href="{% url 'dodaj_specjalizacje' %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fa-solid fa-plus"></i>
+                    </a>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for spec in specjalizacje %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-4">
+                        <span>
+                            <i class="fa-solid {{ spec.ikona_fa }} text-{{ spec.kolor_karty }} me-2"></i>
+                            {{ spec.nazwa }}
+                        </span>
+                        <span class="badge bg-primary rounded-pill">{{ spec.ile_lekarzy }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

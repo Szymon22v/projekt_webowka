@@ -1,0 +1,199 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KlinikaApp{% endblock %} | Portal Rezerwacji Wizyt</title>
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║  PUNKT 2 – Bootstrap i Font Awesome serwowane z naszego serwera  ║
+    ║                                                                   ║
+    ║  Pliki do pobrania i umieszczenia w static/:                     ║
+    ║  • Bootstrap 5.3 → https://getbootstrap.com/docs/5.3/getting-   ║
+    ║    started/download/ → bootstrap.min.css + bootstrap.bundle.js  ║
+    ║  • Font Awesome 6  → https://fontawesome.com/download            ║
+    ║    → css/all.min.css  + webfonts/ (cały folder)                 ║
+    ║  • Chart.js 4      → https://www.chartjs.org/                   ║
+    ║    → chart.umd.min.js                                            ║
+    ╚══════════════════════════════════════════════════════════════════╝
+    -->
+
+    <!-- Bootstrap 5 CSS – serwowany lokalnie (fallback CDN do testów) -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"
+          onerror="this.onerror=null;
+                   this.href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css'">
+
+    <!-- Font Awesome 6 – serwowany lokalnie -->
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}"
+          onerror="this.onerror=null;
+                   this.href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'">
+
+    <!-- Własne style aplikacji -->
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ═══════════════════════════ NAWIGACJA ═══════════════════════════ -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow sticky-top">
+    <div class="container">
+        <!-- Logo -->
+        <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2"
+           href="{% url 'strona_glowna' %}">
+            <div class="brand-icon">
+                <i class="fa-solid fa-house-medical"></i>
+            </div>
+            KlinikaApp
+        </a>
+
+        <!-- Przycisk hamburger na mobile -->
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navMenu">
+            <!-- Menu główne -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'lista_lekarzy' %}active{% endif %}"
+                       href="{% url 'lista_lekarzy' %}">
+                        <i class="fa-solid fa-user-doctor me-1"></i>Lekarze
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'moje_wizyty' %}active{% endif %}"
+                       href="{% url 'moje_wizyty' %}">
+                        <i class="fa-solid fa-calendar-check me-1"></i>Moje wizyty
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Wyszukiwarka w navbarze -->
+            <form class="d-flex me-3" method="GET" action="{% url 'lista_lekarzy' %}">
+                <div class="input-group input-group-sm">
+                    <input class="form-control" type="search" name="szukaj"
+                           placeholder="Szukaj lekarza..."
+                           value="{{ request.GET.szukaj }}">
+                    <button class="btn btn-outline-light" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Przycisk panel -->
+            <a href="{% url 'panel' %}" class="btn btn-outline-light btn-sm">
+                <i class="fa-solid fa-gauge me-1"></i>Panel
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- ═══════════════════════════ TOASTY / KOMUNIKATY ═══════════════════════════ -->
+<!-- JS Element #1: Toast notifications (animowane powiadomienia) -->
+{% if messages %}
+<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999; margin-top: 70px;">
+    {% for message in messages %}
+    <div class="toast align-items-center border-0 mb-2
+        {% if message.tags == 'success' %}text-bg-success
+        {% elif message.tags == 'error' %}text-bg-danger
+        {% elif message.tags == 'warning' %}text-bg-warning text-dark
+        {% else %}text-bg-info{% endif %}"
+         role="alert" data-bs-autohide="true" data-bs-delay="5000">
+        <div class="d-flex">
+            <div class="toast-body fw-medium">
+                <i class="fa-solid
+                    {% if message.tags == 'success' %}fa-circle-check
+                    {% elif message.tags == 'error' %}fa-circle-xmark
+                    {% elif message.tags == 'warning' %}fa-triangle-exclamation
+                    {% else %}fa-circle-info{% endif %} me-2"></i>
+                {{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- ═══════════════════════════ TREŚĆ STRONY ═══════════════════════════ -->
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ═══════════════════════════ STOPKA ═══════════════════════════ -->
+<footer class="bg-dark text-light py-5 mt-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="fa-solid fa-house-medical me-2 text-primary"></i>KlinikaApp
+                </h5>
+                <p class="text-secondary small">
+                    Portal rezerwacji wizyt lekarskich. Znajdź specjalistę
+                    i zarezerwuj termin online – szybko i wygodnie.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <h6 class="fw-semibold mb-3 text-secondary text-uppercase small">Nawigacja</h6>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'strona_glowna' %}" class="text-secondary text-decoration-none footer-link">
+                        <i class="fa-solid fa-house fa-xs me-2"></i>Strona główna</a></li>
+                    <li><a href="{% url 'lista_lekarzy' %}" class="text-secondary text-decoration-none footer-link">
+                        <i class="fa-solid fa-user-doctor fa-xs me-2"></i>Wszyscy lekarze</a></li>
+                    <li><a href="{% url 'moje_wizyty' %}" class="text-secondary text-decoration-none footer-link">
+                        <i class="fa-solid fa-calendar fa-xs me-2"></i>Moje wizyty</a></li>
+                    <li><a href="{% url 'panel' %}" class="text-secondary text-decoration-none footer-link">
+                        <i class="fa-solid fa-gauge fa-xs me-2"></i>Panel zarządzania</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 class="fw-semibold mb-3 text-secondary text-uppercase small">Informacje</h6>
+                <p class="text-secondary small mb-1">
+                    <i class="fa-solid fa-circle-info me-2"></i>
+                    Projekt zaliczeniowy – Programowanie Aplikacji Webowych
+                </p>
+                <p class="text-secondary small">
+                    <i class="fa-brands fa-python me-2"></i>
+                    Django 4.2 + Bootstrap 5 + Chart.js
+                </p>
+            </div>
+        </div>
+        <hr class="border-secondary mt-4">
+        <p class="text-center text-secondary small mb-0">
+            &copy; 2024 KlinikaApp – Dane fikcyjne, projekt edukacyjny
+        </p>
+    </div>
+</footer>
+
+<!-- Bootstrap JS – serwowany lokalnie -->
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"
+        onerror="this.onerror=null;
+                 this.src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js'">
+</script>
+
+<!-- Chart.js – serwowany lokalnie -->
+<script src="{% static 'js/chart.umd.min.js' %}"
+        onerror="this.onerror=null;
+                 this.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'">
+</script>
+
+<!-- Główny plik JS aplikacji -->
+<script src="{% static 'js/app.js' %}"></script>
+
+{% block extra_js %}{% endblock %}
+
+<!-- Inicjalizacja toastów Bootstrap -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.toast').forEach(function (el) {
+        new bootstrap.Toast(el).show();
+    });
+});
+</script>
+</body>
+</html>

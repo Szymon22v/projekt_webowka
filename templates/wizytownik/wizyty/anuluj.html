@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Anuluj wizytę{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 500px">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><i class="fa-solid fa-triangle-exclamation me-2"></i>Anulowanie wizyty</h5>
+        </div>
+        <div class="card-body p-4">
+            <p class="mb-3">Czy na pewno chcesz anulować wizytę?</p>
+            <ul class="list-unstyled text-muted mb-4">
+                <li><i class="fa-solid fa-user-doctor fa-fw me-2"></i>{{ wizyta.lekarz.tytul_i_nazwisko }}</li>
+                <li><i class="fa-solid fa-calendar fa-fw me-2"></i>{{ wizyta.data|date:"d.m.Y" }} o {{ wizyta.godzina|time:"H:i" }}</li>
+            </ul>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="d-flex gap-3">
+                    <a href="{% url 'moje_wizyty' %}?email={{ wizyta.pacjent.email }}"
+                       class="btn btn-outline-secondary flex-grow-1">Wróć</a>
+                    <button type="submit" class="btn btn-danger flex-grow-1">
+                        <i class="fa-solid fa-xmark me-1"></i>Tak, anuluj wizytę
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
