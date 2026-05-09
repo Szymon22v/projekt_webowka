@@ -1,15 +1,8 @@
-"""
-Ustawienia Django dla projektu KlinikaApp.
-"""
 from pathlib import Path
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Klucz sekretny – zmień go przed wdrożeniem na serwer!
 SECRET_KEY = 'django-insecure-klinika-projekt-klucz-zmien-na-produkcji-2024'
-
-# W trybie produkcyjnym ustaw na False i skonfiguruj ALLOWED_HOSTS
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
@@ -20,7 +13,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Nasza aplikacja:
     'wizytownik',
 ]
 
@@ -39,7 +31,6 @@ ROOT_URLCONF = 'klinika_projekt.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # Folder z szablonami HTML:
         'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -55,7 +46,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'klinika_projekt.wsgi.application'
 
-# Baza danych – SQLite (plik lokalny, nie wymaga instalacji serwera)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -63,7 +53,6 @@ DATABASES = {
     }
 }
 
-# Walidacja haseł
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -76,18 +65,11 @@ TIME_ZONE = 'Europe/Warsaw'
 USE_I18N = True
 USE_TZ = True
 
-# ─── Pliki statyczne (CSS, JS, Bootstrap, FontAwesome) ────────────────────────
-# Serwowane z naszego serwera zgodnie z wymogiem punktu 2
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']   # folder deweloperski
-STATIC_ROOT = BASE_DIR / 'staticfiles'     # folder produkcyjny (po collectstatic)
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# ─── Pliki mediów (zdjęcia lekarzy) ───────────────────────────────────────────
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Liczba wizyt na stronie (paginacja – punkt 5)
-WIZYTY_NA_STRONE = 10
-LEKARZE_NA_STRONE = 9

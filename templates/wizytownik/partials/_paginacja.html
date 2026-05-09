@@ -1,0 +1,67 @@
+{% load wizytownik_tags %}
+{% comment %}
+Komponent paginacji (Punkt 5).
+Użycie: {% include "wizytownik/partials/_paginacja.html" with strona=strona na_strone=na_strone params_get=params_get %}
+{% endcomment %}
+{% if strona and strona.paginator.num_pages > 1 %}
+<div class="mt-4">
+  <div class="row align-items-center g-3">
+    <div class="col-md-3">
+      <span class="text-muted small">
+        Wyniki <strong>{{ strona.start_index }}</strong>–<strong>{{ strona.end_index }}</strong>
+        z <strong>{{ strona.paginator.count }}</strong>
+      </span>
+    </div>
+    <div class="col-md-6 text-center">
+      <nav>
+        <ul class="pagination pagination-sm justify-content-center mb-0">
+          {% if strona.has_previous %}
+          <li class="page-item"><a class="page-link" href="?{{ params_get }}&strona=1&na_strone={{ na_strone }}"><i class="fa-solid fa-angles-left"></i></a></li>
+          <li class="page-item"><a class="page-link" href="?{{ params_get }}&strona={{ strona.previous_page_number }}&na_strone={{ na_strone }}"><i class="fa-solid fa-angle-left"></i></a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link"><i class="fa-solid fa-angles-left"></i></span></li>
+          <li class="page-item disabled"><span class="page-link"><i class="fa-solid fa-angle-left"></i></span></li>
+          {% endif %}
+          {% for num in strona.paginator.page_range %}
+            {% if num == strona.number %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num >= strona.number|add:"-2" and num <= strona.number|add:"2" %}
+            <li class="page-item"><a class="page-link" href="?{{ params_get }}&strona={{ num }}&na_strone={{ na_strone }}">{{ num }}</a></li>
+            {% endif %}
+          {% endfor %}
+          {% if strona.has_next %}
+          <li class="page-item"><a class="page-link" href="?{{ params_get }}&strona={{ strona.next_page_number }}&na_strone={{ na_strone }}"><i class="fa-solid fa-angle-right"></i></a></li>
+          <li class="page-item"><a class="page-link" href="?{{ params_get }}&strona={{ strona.paginator.num_pages }}&na_strone={{ na_strone }}"><i class="fa-solid fa-angles-right"></i></a></li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link"><i class="fa-solid fa-angle-right"></i></span></li>
+          <li class="page-item disabled"><span class="page-link"><i class="fa-solid fa-angles-right"></i></span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    <div class="col-md-3">
+      <div class="d-flex gap-2 justify-content-md-end align-items-center">
+        <!-- Zmiana wyników na stronę (Punkt 5) -->
+        <form method="GET" class="d-flex align-items-center gap-1">
+          {% for key, val in request.GET.items %}{% if key != "na_strone" and key != "strona" %}<input type="hidden" name="{{ key }}" value="{{ val }}">{% endif %}{% endfor %}
+          <input type="hidden" name="strona" value="1">
+          <label class="text-muted small text-nowrap">Na str.:</label>
+          <select name="na_strone" class="form-select form-select-sm" style="width:70px" onchange="this.form.submit()">
+            {% for n in "5,10,25,50"|split:"," %}<option value="{{ n }}" {% if na_strone == n|add:0 %}selected{% endif %}>{{ n }}</option>{% endfor %}
+          </select>
+        </form>
+        <!-- Skok do strony (Punkt 5) -->
+        {% if strona.paginator.num_pages > 2 %}
+        <form method="GET" class="d-flex align-items-center gap-1">
+          {% for key, val in request.GET.items %}{% if key != "strona" %}<input type="hidden" name="{{ key }}" value="{{ val }}">{% endif %}{% endfor %}
+          <label class="text-muted small text-nowrap">Str.:</label>
+          <input type="number" name="strona" class="form-control form-control-sm" style="width:60px"
+                 min="1" max="{{ strona.paginator.num_pages }}" value="{{ strona.number }}">
+          <span class="text-muted small">/{{ strona.paginator.num_pages }}</span>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}

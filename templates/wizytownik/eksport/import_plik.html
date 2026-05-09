@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load wizytownik_tags %}
+{% block title %}Import danych{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:900px">
+  <h1 class="fw-bold mb-2"><i class="fa-solid fa-file-import me-2 text-primary"></i>Import danych z pliku</h1>
+  <p class="text-muted mb-5">Prześlij plik CSV lub TXT aby zaimportować pacjentów lub lekarzy.</p>
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fa-solid fa-upload me-2"></i>Prześlij plik</h5></div>
+        <div class="card-body p-4">
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label fw-semibold">{{ form.plik.label }}</label>
+              <!-- Strefa drag & drop (JS Element #3) -->
+              <div id="drop-zone" class="border-2 border-dashed rounded p-4 text-center mb-2"
+                   style="border:2px dashed #cbd5e1;cursor:pointer;transition:all .2s">
+                <i class="fa-solid fa-cloud-arrow-up fa-2x text-muted mb-2 d-block"></i>
+                <p class="text-muted mb-2">Przeciągnij plik tutaj lub</p>
+                <label class="btn btn-sm btn-outline-primary" for="{{ form.plik.id_for_label }}">
+                  <i class="fa-solid fa-folder-open me-1"></i>Wybierz plik
+                </label>
+                <div style="display:none">{{ form.plik }}</div>
+              </div>
+              <div id="plik-info" class="small text-success d-none">
+                <i class="fa-solid fa-file-csv me-1"></i><span id="plik-nazwa"></span>
+              </div>
+              {% if form.plik.help_text %}<div class="form-text">{{ form.plik.help_text }}</div>{% endif %}
+              {% if form.plik.errors %}<div class="text-danger small">{{ form.plik.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-6"><label class="form-label small fw-semibold">{{ form.typ_danych.label }}</label>{{ form.typ_danych }}</div>
+              <div class="col-6"><label class="form-label small fw-semibold">{{ form.separator.label }}</label>{{ form.separator }}</div>
+            </div>
+            <div class="form-check mb-4">
+              {{ form.tylko_podglad }}
+              <label class="form-check-label fw-semibold" for="{{ form.tylko_podglad.id_for_label }}">{{ form.tylko_podglad.label }}</label>
+              <div class="form-text">Zaznaczone = tylko podgląd, bez zapisu do bazy.</div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="fa-solid fa-magnifying-glass me-2"></i>Przetwórz plik
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light"><h6 class="mb-0 fw-semibold"><i class="fa-solid fa-circle-info me-2 text-info"></i>Format pliku</h6></div>
+        <div class="card-body p-4">
+          <p class="small text-muted mb-2">Nagłówki (pierwsza linia):</p>
+          <code class="d-block bg-light p-2 rounded small mb-3">imie;nazwisko;email;telefon</code>
+          <p class="small text-muted mb-2">Przykład:</p>
+          <code class="d-block bg-light p-2 rounded small mb-3">Jan;Kowalski;jan@wp.pl;501234567<br>Anna;Nowak;anna@gmail.com;602345678</code>
+          <button class="btn btn-sm btn-outline-secondary" onclick="pobierzPrzyklad()">
+            <i class="fa-solid fa-download me-1"></i>Pobierz przykładowy CSV
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if wyniki %}
+  <div class="card border-0 shadow-sm mt-4">
+    <div class="card-header {% if wyniki.tryb == 'podglad' %}bg-info text-white{% elif wyniki.dodane > 0 %}bg-success text-white{% else %}bg-warning text-dark{% endif %}">
+      <h5 class="mb-0">{% if wyniki.tryb == 'podglad' %}<i class="fa-solid fa-eye me-2"></i>Podgląd{% else %}<i class="fa-solid fa-check-circle me-2"></i>Wyniki importu{% endif %}</h5>
+    </div>
+    <div class="card-body p-4">
+      <div class="d-flex gap-3 mb-4">
+        <div class="p-3 bg-light rounded text-center" style="min-width:90px"><div class="h4 fw-bold mb-0 text-primary">{{ wyniki.lacznie_wierszy }}</div><div class="small text-muted">Wierszy</div></div>
+        {% if wyniki.tryb == 'import' %}
+        <div class="p-3 bg-success bg-opacity-10 rounded text-center" style="min-width:90px"><div class="h4 fw-bold mb-0 text-success">{{ wyniki.dodane }}</div><div class="small text-muted">Dodanych</div></div>
+        <div class="p-3 bg-warning bg-opacity-10 rounded text-center" style="min-width:90px"><div class="h4 fw-bold mb-0 text-warning">{{ wyniki.pominietych }}</div><div class="small text-muted">Pominiętych</div></div>
+        <div class="p-3 bg-danger bg-opacity-10 rounded text-center" style="min-width:90px"><div class="h4 fw-bold mb-0 text-danger">{{ wyniki.bledy|length }}</div><div class="small text-muted">Błędów</div></div>
+        {% endif %}
+      </div>
+      {% if wyniki.podglad %}
+      <h6 class="fw-semibold mb-2">Podgląd danych:</h6>
+      <div class="table-responsive mb-3">
+        <table class="table table-sm table-bordered table-hover small">
+          <thead class="table-light"><tr>{% for k in wyniki.kolumny %}<th>{{ k }}</th>{% endfor %}</tr></thead>
+          <tbody>{% for w in wyniki.podglad %}<tr>{% for k in wyniki.kolumny %}<td>{{ w|dict_key:k }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+        </table>
+      </div>
+      {% endif %}
+      {% if wyniki.bledy %}
+      <div class="alert alert-danger"><h6 class="fw-bold">Błędy:</h6><ul class="mb-0 small">{% for b in wyniki.bledy %}<li>{{ b }}</li>{% endfor %}</ul></div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+// JS Element #3 – Drag & Drop przesyłanie pliku
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.querySelector('input[type="file"]');
+const plikInfo = document.getElementById('plik-info');
+const plikNazwa = document.getElementById('plik-nazwa');
+
+fileInput?.addEventListener('change', function() {
+  if(this.files.length>0) pokazPlik(this.files[0].name);
+});
+dropZone?.addEventListener('dragover', e=>{e.preventDefault();dropZone.style.borderColor='#2563eb';dropZone.style.background='#eff6ff';});
+dropZone?.addEventListener('dragleave', ()=>{dropZone.style.borderColor='#cbd5e1';dropZone.style.background='';});
+dropZone?.addEventListener('drop', e=>{
+  e.preventDefault(); dropZone.style.borderColor='#cbd5e1'; dropZone.style.background='';
+  const pliki=e.dataTransfer.files;
+  if(pliki.length>0){const dt=new DataTransfer();dt.items.add(pliki[0]);fileInput.files=dt.files;pokazPlik(pliki[0].name);}
+});
+function pokazPlik(nazwa) {
+  plikNazwa.textContent=nazwa; plikInfo.classList.remove('d-none');
+  dropZone.style.borderColor='#10b981'; dropZone.style.background='#f0fdf4';
+}
+
+function pobierzPrzyklad() {
+  const tresc='imie;nazwisko;email;telefon\nJan;Kowalski;jan.test@wp.pl;501234567\nAnna;Nowak;anna.test@gmail.com;602345678\n';
+  const blob=new Blob(['\ufeff'+tresc],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='przyklad_pacjenci.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

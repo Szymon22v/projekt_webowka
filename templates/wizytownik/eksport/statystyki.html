@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Statystyki{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h1 class="fw-bold mb-5"><i class="fa-solid fa-chart-bar me-2 text-primary"></i>Statystyki systemu</h1>
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light"><h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Wizyty wg specjalizacji (Chart.js)</h6></div>
+        <div class="card-body p-4"><canvas id="chartSpec" height="250"></canvas></div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light"><h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-bar me-2 text-success"></i>Najaktywniejszy lekarze (Chart.js)</h6></div>
+        <div class="card-body p-4"><canvas id="chartLekarze" height="250"></canvas></div>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-dark text-white"><h6 class="mb-0"><i class="fa-solid fa-image me-2"></i>Wykres generowany przez matplotlib (serwer – Punkt 4b)</h6></div>
+        <div class="card-body p-4 text-center">
+          <img src="{% url 'wykres_png' %}?rodzaj=miesiace" alt="Wykres miesięczny" class="img-fluid rounded shadow-sm" style="max-height:380px">
+          <p class="text-muted small mt-2 mb-0"><i class="fa-solid fa-circle-info me-1"></i>Ten obraz generowany jest przez Django w locie – bez zapisywania na dysk.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const KOLORY = ["#2563eb","#7c3aed","#db2777","#0891b2","#059669","#d97706","#dc2626","#64748b"];
+new Chart(document.getElementById("chartSpec"),{
+  type:"doughnut",
+  data:{labels:{{ spec_labels|safe }},datasets:[{data:{{ spec_values|safe }},backgroundColor:KOLORY,borderWidth:2,borderColor:"#fff"}]},
+  options:{responsive:true,plugins:{legend:{position:"right"}}}
+});
+new Chart(document.getElementById("chartLekarze"),{
+  type:"bar",
+  data:{labels:{{ lekarz_labels|safe }},datasets:[{label:"Liczba wizyt",data:{{ lekarz_values|safe }},backgroundColor:KOLORY,borderRadius:6}]},
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:"#f1f5f9"}},x:{grid:{display:false}}}}
+});
+</script>
+{% endblock %}
