@@ -14,7 +14,7 @@
       <div class="card border-0 shadow-sm h-100">
         <div class="card-header bg-success text-white"><h5 class="mb-0"><i class="fa-solid fa-file-csv me-2"></i>Eksport CSV</h5></div>
         <div class="card-body p-4">
-          <p class="text-muted mb-4">Plik CSV z BOM – poprawnie otwiera się w Excel z polskimi znakami.</p>
+          <p class="text-muted mb-4">Plik CSV z BOM </p>
           <div class="mb-3 p-3 bg-light rounded">
             <label class="form-label small fw-semibold">Zakres dat wizyt (opcjonalnie)</label>
             <div class="row g-2">
@@ -34,7 +34,7 @@
       <div class="card border-0 shadow-sm h-100">
         <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fa-solid fa-file-excel me-2"></i>Eksport Excel (XLSX)</h5></div>
         <div class="card-body p-4">
-          <p class="text-muted mb-4">Plik Excel z kolorowymi nagłówkami i kolorowaniem wierszy według statusu wizyty.</p>
+          <p class="text-muted mb-4">Plik Excel</p>
           <div class="d-flex flex-column gap-2 mt-auto">
             <a href="{% url 'eksport_xlsx' %}?typ=wizyty" class="btn btn-primary"><i class="fa-solid fa-calendar-days me-2"></i>Wizyty (.xlsx)</a>
             <a href="{% url 'eksport_xlsx' %}?typ=lekarze" class="btn btn-outline-primary"><i class="fa-solid fa-user-doctor me-2"></i>Lekarze (.xlsx)</a>
@@ -45,11 +45,9 @@
     <div class="col-12">
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-          <h5 class="mb-0"><i class="fa-solid fa-image me-2"></i>Dynamiczny wykres PNG (matplotlib)</h5>
-          <span class="badge bg-warning text-dark">Punkt 4b</span>
+          <h5 class="mb-0"><i class="fa-solid fa-image me-2"></i>Wykresy</h5>
         </div>
         <div class="card-body p-4">
-          <p class="text-muted mb-3">Generowany dynamicznie przez Django – widok <code>/eksport/wykres.png</code> zwraca obraz PNG w locie.</p>
           <div class="btn-group mb-4">
             <button class="btn btn-outline-dark btn-sm active" onclick="zmienWykres('specjalizacje',this)"><i class="fa-solid fa-chart-bar me-1"></i>Specjalizacje</button>
             <button class="btn btn-outline-dark btn-sm" onclick="zmienWykres('miesiace',this)"><i class="fa-solid fa-chart-line me-1"></i>Trendy</button>

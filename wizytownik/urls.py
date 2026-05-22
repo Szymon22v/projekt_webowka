@@ -13,9 +13,14 @@ from .views.eksport import (
     wykres_png, wykres_statystyki,
 )
 from .views.import_plik import import_plik
+from .views.auth_views import widok_logowania, widok_wylogowania
 
 urlpatterns = [
-    # Pacjent
+    # ── Logowanie / Wylogowanie ───────────────────────────────────────────
+    path('logowanie/',   widok_logowania,   name='logowanie'),
+    path('wylogowanie/', widok_wylogowania, name='wylogowanie'),
+
+    # ── Pacjent (publiczne) ───────────────────────────────────────────────
     path('',                                  strona_glowna,        name='strona_glowna'),
     path('lekarze/',                          lista_lekarzy,        name='lista_lekarzy'),
     path('lekarze/<int:pk>/',                 profil_lekarza,       name='profil_lekarza'),
@@ -24,7 +29,8 @@ urlpatterns = [
     path('rezerwacja/potwierdzenie/<int:wizyta_pk>/', potwierdzenie_wizyty, name='potwierdzenie_wizyty'),
     path('wizyty/moje/',                      moje_wizyty,          name='moje_wizyty'),
     path('wizyty/<int:wizyta_pk>/anuluj/',    anuluj_wizyte,        name='anuluj_wizyte'),
-    # Panel zarządzania
+
+    # ── Panel zarządzania (tylko admin) ──────────────────────────────────
     path('panel/',                            panel,                name='panel'),
     path('panel/dodaj-lekarza/',             dodaj_lekarza,        name='dodaj_lekarza'),
     path('panel/lekarze/<int:pk>/edytuj/',   edytuj_lekarza,       name='edytuj_lekarza'),
@@ -32,7 +38,8 @@ urlpatterns = [
     path('panel/dodaj-specjalizacje/',       dodaj_specjalizacje,  name='dodaj_specjalizacje'),
     path('panel/wizyty/',                    lista_wizyt_admin,    name='lista_wizyt_admin'),
     path('panel/wizyty/<int:pk>/status/',    zmien_status_wizyty,  name='zmien_status_wizyty'),
-    # Eksport / Import / Wykresy (Punkt 4)
+
+    # ── Eksport / Import / Wykresy ────────────────────────────────────────
     path('eksport/',                         strona_eksportu,      name='strona_eksportu'),
     path('eksport/csv/',                     eksport_csv,          name='eksport_csv'),
     path('eksport/xlsx/',                    eksport_xlsx,         name='eksport_xlsx'),

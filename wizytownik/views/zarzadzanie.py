@@ -1,12 +1,49 @@
 from datetime import date
+from functools import wraps
+
+from django.conf import settings
 from django.contrib import messages
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
+
 from ..forms import LekarzForm, SpecjalizacjaForm
 from ..models import Lekarz, Pacjent, Specjalizacja, Wizyta
 from ..paginacja import paginuj, zachowaj_parametry_get
 
 
+# ── Dekorator sprawdzający czy użytkownik jest adminem ────────────────────────
+def tylko_dla_admina(funkcja):
+    """
+    Dekorator chroniący widoki panelu.
+    Sprawdza dwa warunki:
+      1. Czy użytkownik jest zalogowany
+      2. Czy jego nazwa jest na liście ADMINZY w settings.py
+
+    Aby dodać admina: otwórz settings.py i dopisz nazwę do listy ADMINZY.
+    Aby zabrać dostęp: usuń nazwę z listy ADMINZY.
+    """
+    @wraps(funkcja)
+    def wrapper(request, *args, **kwargs):
+        # Warunek 1: czy zalogowany?
+        if not request.user.is_authenticated:
+            messages.warning(request, 'Musisz być zalogowany, aby wejść do panelu.')
+            return redirect(f'/logowanie/?next={request.path}')
+
+        # Warunek 2: czy jest adminem?
+        if request.user.username not in settings.ADMINZY:
+            messages.error(
+                request,
+                'Nie masz uprawnień do panelu zarządzania. '
+                'Skontaktuj się z administratorem.'
+            )
+            return redirect('strona_glowna')
+
+        return funkcja(request, *args, **kwargs)
+    return wrapper
+
+
+# ── Panel główny ──────────────────────────────────────────────────────────────
+@tylko_dla_admina
 def panel(request):
     dzisiaj = date.today()
     return render(request, 'wizytownik/zarzadzanie/panel.html', {
@@ -21,6 +58,8 @@ def panel(request):
     })
 
 
+# ── Lekarze ───────────────────────────────────────────────────────────────────
+@tylko_dla_admina
 def dodaj_lekarza(request):
     if request.method == 'POST':
         form = LekarzForm(request.POST)
@@ -35,6 +74,7 @@ def dodaj_lekarza(request):
     })
 
 
+@tylko_dla_admina
 def edytuj_lekarza(request, pk):
     lekarz = get_object_or_404(Lekarz, pk=pk)
     if request.method == 'POST':
@@ -50,6 +90,7 @@ def edytuj_lekarza(request, pk):
     })
 
 
+@tylko_dla_admina
 def usun_lekarza(request, pk):
     lekarz = get_object_or_404(Lekarz, pk=pk)
     if request.method == 'POST':
@@ -62,6 +103,8 @@ def usun_lekarza(request, pk):
     })
 
 
+# ── Specjalizacje ─────────────────────────────────────────────────────────────
+@tylko_dla_admina
 def dodaj_specjalizacje(request):
     if request.method == 'POST':
         form = SpecjalizacjaForm(request.POST)
@@ -74,10 +117,12 @@ def dodaj_specjalizacje(request):
     return render(request, 'wizytownik/zarzadzanie/formularz_specjalizacji.html', {'form': form})
 
 
+# ── Lista wizyt ───────────────────────────────────────────────────────────────
+@tylko_dla_admina
 def lista_wizyt_admin(request):
-    """Lista wizyt z filtrowaniem i paginacją (Punkt 5)."""
-    qs = Wizyta.objects.select_related('lekarz', 'lekarz__specjalizacja', 'pacjent')\
-                       .order_by('-data', '-godzina')
+    qs = Wizyta.objects.select_related(
+        'lekarz', 'lekarz__specjalizacja', 'pacjent'
+    ).order_by('-data', '-godzina')
 
     status_filter = request.GET.get('status', '')
     data_od       = request.GET.get('data_od', '')
@@ -115,6 +160,7 @@ def lista_wizyt_admin(request):
     })
 
 
+@tylko_dla_admina
 def zmien_status_wizyty(request, pk):
     wizyta = get_object_or_404(Wizyta, pk=pk)
     if request.method == 'POST':

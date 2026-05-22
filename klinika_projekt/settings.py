@@ -39,6 +39,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'wizytownik.context_processors.admin_status',
             ],
         },
     },
@@ -73,3 +74,25 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ─── Logowanie / Autoryzacja ──────────────────────────────────────────────────
+# Adres strony logowania – Django przekieruje tu gdy użytkownik
+# próbuje wejść na chronioną stronę bez zalogowania
+LOGIN_URL = '/logowanie/'
+
+# Po zalogowaniu przekieruj na stronę główną
+LOGIN_REDIRECT_URL = '/'
+
+# Po wylogowaniu przekieruj na stronę główną
+LOGOUT_REDIRECT_URL = '/'
+
+# ─── LISTA ADMINÓW ────────────────────────────────────────────────────────────
+# Aby nadać komuś dostęp do Panelu zarządzania, dodaj jego nazwę użytkownika
+# do tej listy. Aby zabrać dostęp – usuń z listy.
+#
+# Przykład: ADMINZY = ['admin', 'doktor_szef', 'recepcja']
+#
+ADMINZY = [
+    'admin',          # konto administratora – ma dostęp do Panelu
+]
+

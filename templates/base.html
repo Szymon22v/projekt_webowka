@@ -5,13 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}KlinikaApp{% endblock %} | Portal Rezerwacji Wizyt</title>
-    <!-- Bootstrap 5 CSS – serwowany lokalnie (Punkt 2) -->
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"
           onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css'">
-    <!-- Font Awesome 6 – serwowany lokalnie (Punkt 2) -->
     <link rel="stylesheet" href="{% static 'css/all.min.css' %}"
           onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'">
-    <!-- Własne style -->
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -52,6 +49,7 @@
                     </a>
                 </li>
             </ul>
+
             <form class="d-flex me-3" method="GET" action="{% url 'lista_lekarzy' %}">
                 <div class="input-group input-group-sm">
                     <input class="form-control" type="search" name="szukaj"
@@ -61,9 +59,59 @@
                     </button>
                 </div>
             </form>
-            <a href="{% url 'panel' %}" class="btn btn-outline-light btn-sm">
-                <i class="fa-solid fa-gauge me-1"></i>Panel
-            </a>
+
+            <!-- ═══ LOGOWANIE / UŻYTKOWNIK ═══ -->
+            {% if user.is_authenticated %}
+
+                <!-- Przycisk Panel – widoczny TYLKO jeśli jest_adminem=True (ustawiane w kontekście) -->
+                {% if jest_adminem %}
+                <a href="{% url 'panel' %}" class="btn btn-warning btn-sm me-2 fw-semibold">
+                    <i class="fa-solid fa-gauge me-1"></i>Panel
+                </a>
+                {% endif %}
+
+                <!-- Dropdown z nazwą użytkownika -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-circle-user me-1"></i>{{ user.username }}
+                        {% if jest_adminem %}
+                        <span class="badge bg-warning text-dark ms-1" style="font-size:.65rem">ADMIN</span>
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li class="dropdown-header">
+                            {% if jest_adminem %}
+                            <i class="fa-solid fa-crown text-warning me-1"></i>
+                            <strong>Administrator</strong>
+                            {% else %}
+                            <i class="fa-solid fa-user text-secondary me-1"></i>
+                            Użytkownik
+                            {% endif %}
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        {% if jest_adminem %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'panel' %}">
+                                <i class="fa-solid fa-gauge me-2 text-primary"></i>Panel zarządzania
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        {% endif %}
+                        <li>
+                            <a class="dropdown-item text-danger" href="{% url 'wylogowanie' %}">
+                                <i class="fa-solid fa-right-from-bracket me-2"></i>Wyloguj się
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+            {% else %}
+                <!-- Niezalogowany – pokaż przycisk logowania -->
+                <a href="{% url 'logowanie' %}" class="btn btn-outline-light btn-sm">
+                    <i class="fa-solid fa-right-to-bracket me-1"></i>Zaloguj się
+                </a>
+            {% endif %}
+
         </div>
     </div>
 </nav>
@@ -79,10 +127,15 @@
          role="alert" data-bs-autohide="true" data-bs-delay="5000">
         <div class="d-flex">
             <div class="toast-body fw-medium">
-                <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'error' %}fa-circle-xmark{% elif message.tags == 'warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %} me-2"></i>
+                <i class="fa-solid
+                    {% if message.tags == 'success' %}fa-circle-check
+                    {% elif message.tags == 'error' %}fa-circle-xmark
+                    {% elif message.tags == 'warning' %}fa-triangle-exclamation
+                    {% else %}fa-circle-info{% endif %} me-2"></i>
                 {{ message }}
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast"></button>
         </div>
     </div>
     {% endfor %}
@@ -93,18 +146,19 @@
 
 <footer class="bg-dark text-light py-4 mt-5">
     <div class="container text-center">
-        <p class="mb-1 fw-bold"><i class="fa-solid fa-house-medical me-2 text-primary"></i>KlinikaApp</p>
-        <p class="text-secondary small mb-0">Portal rezerwacji wizyt lekarskich &copy; 2024 | Projekt zaliczeniowy</p>
+        <p class="mb-1 fw-bold">
+            <i class="fa-solid fa-house-medical me-2 text-primary"></i>KlinikaApp
+        </p>
+        <p class="text-secondary small mb-0">
+            Portal rezerwacji wizyt lekarskich &copy; 2024 | Projekt zaliczeniowy
+        </p>
     </div>
 </footer>
 
-<!-- Bootstrap JS – serwowany lokalnie (Punkt 2) -->
 <script src="{% static 'js/bootstrap.bundle.min.js' %}"
         onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js'"></script>
-<!-- Chart.js – serwowany lokalnie (Punkt 2) -->
 <script src="{% static 'js/chart.umd.min.js' %}"
         onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'"></script>
-<!-- Własny JS -->
 <script src="{% static 'js/app.js' %}"></script>
 {% block extra_js %}{% endblock %}
 <script>
