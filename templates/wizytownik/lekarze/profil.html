@@ -19,11 +19,6 @@
           </div>
           <h3 class="fw-bold mb-1">{{ lekarz.tytul_i_nazwisko }}</h3>
           <span class="badge bg-{{ lekarz.specjalizacja.kolor_karty }} fs-6 mb-3">{{ lekarz.specjalizacja.nazwa }}</span>
-          <div class="text-warning mb-1">
-            {% with lekarz.ocena|floatformat:0 as g %}{% for i in "12345" %}{% if forloop.counter <= g|add:0 %}<i class="fa-solid fa-star fa-lg"></i>{% else %}<i class="fa-regular fa-star fa-lg"></i>{% endif %}{% endfor %}{% endwith %}
-          </div>
-          <span class="fw-bold fs-5">{{ lekarz.ocena }}/5</span>
-          <span class="text-muted small">({{ lekarz.liczba_opinii }} opinii)</span>
         </div>
       </div>
       <div class="card border-0 shadow-sm">

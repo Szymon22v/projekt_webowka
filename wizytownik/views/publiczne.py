@@ -2,6 +2,7 @@ import json
 from datetime import date, timedelta, time as time_type
 
 from django.contrib import messages
+from django.core.mail import send_mail
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -98,6 +99,68 @@ def api_sloty(request, lekarz_pk):
     return JsonResponse({'sloty': [s.strftime('%H:%M') for s in sloty], 'data': data_str})
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# REZERWACJA – z wysyłaniem e-maila potwierdzającego
+# ══════════════════════════════════════════════════════════════════════════════
+
+def _wyslij_potwierdzenie(wizyta):
+    """
+    Wysyła e-mail z potwierdzeniem rezerwacji wizyty.
+
+    Jeśli w settings.py ustawiony jest EMAIL_BACKEND = console → mail
+    pojawia się w terminalu (domyślnie).
+
+    Jeśli ustawiony jest backend Gmail → mail idzie na prawdziwy adres.
+
+    Funkcja jest oddzielona od widoku żeby łatwo ją znaleźć i edytować.
+    """
+    temat = f'KlinikaApp – Potwierdzenie wizyty #{wizyta.pk:05d}'
+
+    tresc = f"""
+Dzień dobry, {wizyta.pacjent.imie}!
+
+Twoja wizyta została pomyślnie zarezerwowana.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SZCZEGÓŁY WIZYTY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Lekarz:        {wizyta.lekarz.tytul_i_nazwisko}
+  Specjalizacja: {wizyta.lekarz.specjalizacja.nazwa}
+  Data:          {wizyta.data.strftime('%A, %d %B %Y')}
+  Godzina:       {wizyta.godzina.strftime('%H:%M')}
+  Adres:         {wizyta.lekarz.adres or wizyta.lekarz.miasto}
+  Cena wizyty:   {wizyta.lekarz.cena_wizyty:.0f} zł
+
+  Nr rezerwacji: #{wizyta.pk:05d}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Aby sprawdzić lub anulować wizytę, wejdź na:
+http://127.0.0.1:8000/wizyty/moje/?email={wizyta.pacjent.email}
+
+Prosimy o przybycie 5 minut przed wyznaczoną godziną.
+
+Pozdrawiamy,
+Zespół KlinikaApp
+
+─────────────────────────────────────
+Ta wiadomość została wygenerowana automatycznie.
+Projekt zaliczeniowy – dane fikcyjne.
+"""
+
+    try:
+        send_mail(
+            subject=temat,
+            message=tresc,
+            from_email=None,   # używa DEFAULT_FROM_EMAIL z settings.py
+            recipient_list=[wizyta.pacjent.email],
+            fail_silently=True,  # nie przerywaj rezerwacji jeśli mail nie wyjdzie
+        )
+    except Exception:
+        pass  # mail się nie wysłał, ale rezerwacja i tak się udała
+
+
 def rezerwacja(request, lekarz_pk):
     lekarz = get_object_or_404(Lekarz, pk=lekarz_pk, aktywny=True)
     data_str    = request.GET.get('data')    or request.POST.get('data', '')
@@ -111,8 +174,10 @@ def rezerwacja(request, lekarz_pk):
         messages.error(request, 'Nieprawidłowy termin. Wybierz datę i godzinę ponownie.')
         return redirect('profil_lekarza', pk=lekarz_pk)
 
-    if Wizyta.objects.filter(lekarz=lekarz, data=wybrana_data, godzina=wybrana_godzina,
-                              status__in=['oczekujaca', 'potwierdzona']).exists():
+    if Wizyta.objects.filter(
+        lekarz=lekarz, data=wybrana_data, godzina=wybrana_godzina,
+        status__in=['oczekujaca', 'potwierdzona']
+    ).exists():
         messages.warning(request, 'Ten termin właśnie został zarezerwowany. Wybierz inny.')
         return redirect('profil_lekarza', pk=lekarz_pk)
 
@@ -122,28 +187,44 @@ def rezerwacja(request, lekarz_pk):
             pacjent, _ = Pacjent.objects.get_or_create(
                 email=form.cleaned_data['email'],
                 defaults={
-                    'imie': form.cleaned_data['imie'],
-                    'nazwisko': form.cleaned_data['nazwisko'],
-                    'telefon': form.cleaned_data['telefon'],
+                    'imie':           form.cleaned_data['imie'],
+                    'nazwisko':       form.cleaned_data['nazwisko'],
+                    'telefon':        form.cleaned_data['telefon'],
                     'data_urodzenia': form.cleaned_data.get('data_urodzenia'),
-                    'pesel': form.cleaned_data.get('pesel', ''),
+                    'pesel':          form.cleaned_data.get('pesel', ''),
                 }
             )
             wizyta = Wizyta.objects.create(
-                lekarz=lekarz, pacjent=pacjent,
-                data=wybrana_data, godzina=wybrana_godzina,
+                lekarz=lekarz,
+                pacjent=pacjent,
+                data=wybrana_data,
+                godzina=wybrana_godzina,
                 powod_wizyty=request.POST.get('powod_wizyty', ''),
                 status='oczekujaca',
             )
-            messages.success(request,
-                f'Wizyta zarezerwowana! {lekarz} | {wybrana_data.strftime("%d.%m.%Y")} o {godzina_str}')
+
+            # ── Wyślij e-mail potwierdzający ─────────────────────────────
+            # Wersja A (domyślna): mail wyświetli się w terminalu
+            # Wersja B (Gmail):    mail trafi na podany adres
+            # Konfiguracja w: klinika_projekt/settings.py
+            _wyslij_potwierdzenie(wizyta)
+            # ─────────────────────────────────────────────────────────────
+
+            messages.success(
+                request,
+                f'Wizyta zarezerwowana! {lekarz} | '
+                f'{wybrana_data.strftime("%d.%m.%Y")} o {godzina_str} | '
+                f'Potwierdzenie wysłane na {pacjent.email}'
+            )
             return redirect('potwierdzenie_wizyty', wizyta_pk=wizyta.pk)
     else:
         form = PacjentForm()
 
     return render(request, 'wizytownik/wizyty/rezerwacja.html', {
-        'lekarz': lekarz, 'form': form,
-        'wybrana_data': wybrana_data, 'wybrana_godzina': godzina_str,
+        'lekarz':          lekarz,
+        'form':            form,
+        'wybrana_data':    wybrana_data,
+        'wybrana_godzina': godzina_str,
     })
 
 
@@ -162,9 +243,12 @@ def moje_wizyty(request):
         email = form.cleaned_data['email']
         try:
             pacjent = Pacjent.objects.get(email=email)
-            qs = (Wizyta.objects.filter(pacjent=pacjent)
-                  .select_related('lekarz', 'lekarz__specjalizacja')
-                  .order_by('-data', '-godzina'))
+            qs = (
+                Wizyta.objects
+                .filter(pacjent=pacjent)
+                .select_related('lekarz', 'lekarz__specjalizacja')
+                .order_by('-data', '-godzina')
+            )
             strona, na_strone_val = paginuj(qs, request, domyslna_na_strone=5)
             wizyty = strona
             params_get = zachowaj_parametry_get(request)
@@ -172,8 +256,12 @@ def moje_wizyty(request):
             messages.info(request, f'Nie znaleziono konta dla adresu {email}.')
 
     return render(request, 'wizytownik/wizyty/moje_wizyty.html', {
-        'form': form, 'wizyty': wizyty, 'pacjent': pacjent,
-        'strona': strona, 'na_strone': na_strone_val, 'params_get': params_get,
+        'form':       form,
+        'wizyty':     wizyty,
+        'pacjent':    pacjent,
+        'strona':     strona,
+        'na_strone':  na_strone_val,
+        'params_get': params_get,
     })
 
 

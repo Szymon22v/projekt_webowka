@@ -76,23 +76,42 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ─── Logowanie / Autoryzacja ──────────────────────────────────────────────────
-# Adres strony logowania – Django przekieruje tu gdy użytkownik
-# próbuje wejść na chronioną stronę bez zalogowania
 LOGIN_URL = '/logowanie/'
-
-# Po zalogowaniu przekieruj na stronę główną
 LOGIN_REDIRECT_URL = '/'
-
-# Po wylogowaniu przekieruj na stronę główną
 LOGOUT_REDIRECT_URL = '/'
 
 # ─── LISTA ADMINÓW ────────────────────────────────────────────────────────────
-# Aby nadać komuś dostęp do Panelu zarządzania, dodaj jego nazwę użytkownika
-# do tej listy. Aby zabrać dostęp – usuń z listy.
-#
-# Przykład: ADMINZY = ['admin', 'doktor_szef', 'recepcja']
-#
+# Aby nadać komuś dostęp do Panelu – dopisz nazwę użytkownika do listy.
+# Aby zabrać dostęp – usuń nazwę z listy.
 ADMINZY = [
-    'admin',          # konto administratora – ma dostęp do Panelu
+    'admin',
 ]
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# KONFIGURACJA E-MAIL
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── OPCJA A: Terminal (domyślnie włączona) ────────────────────────────────────
+# Maile NIE są wysyłane – wyświetlają się w terminalu gdzie działa serwer.
+# Idealne do testowania i na obronę projektu. Zero konfiguracji.
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+# ── OPCJA B: Prawdziwy Gmail ──────────────────────────────────────────────────
+# Aby wysyłać prawdziwe maile przez Gmail:
+#
+# 1. Wejdź na https://myaccount.google.com
+# 2. Bezpieczeństwo → Weryfikacja dwuetapowa → włącz (jeśli nie włączona)
+# 3. Bezpieczeństwo → Hasła aplikacji → wybierz "Poczta" → kopiuj 16-znakowe hasło
+# 4. Odkomentuj poniższy blok (usuń #) i wpisz swoje dane:
+#
+# EMAIL_BACKEND   = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST      = 'smtp.gmail.com'
+# EMAIL_PORT      = 587
+# EMAIL_USE_TLS   = True
+# EMAIL_HOST_USER = 'twoj.adres@gmail.com'       # ← wpisz swój Gmail
+# EMAIL_HOST_PASSWORD = 'xxxx xxxx xxxx xxxx'    # ← wklej hasło aplikacji z Google
+# DEFAULT_FROM_EMAIL  = 'KlinikaApp <twoj.adres@gmail.com>'
+#
+# PAMIĘTAJ: po zmianie na Gmail zakomentuj linię EMAIL_BACKEND powyżej (Opcja A)!
