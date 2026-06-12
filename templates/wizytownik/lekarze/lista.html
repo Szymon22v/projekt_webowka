@@ -62,10 +62,6 @@
                   </span>
                 </div>
                 <div class="text-end small">
-                  <div class="text-warning">
-                    {% with lekarz.ocena|floatformat:0 as g %}{% for i in "12345" %}{% if forloop.counter <= g|add:0 %}<i class="fa-solid fa-star"></i>{% else %}<i class="fa-regular fa-star"></i>{% endif %}{% endfor %}{% endwith %}
-                  </div>
-                  <div class="text-muted" style="font-size:.75rem">{{ lekarz.ocena }} ({{ lekarz.liczba_opinii }})</div>
                 </div>
               </div>
               <ul class="list-unstyled mb-3 small">
