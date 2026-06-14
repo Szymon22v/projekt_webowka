@@ -1,11 +1,11 @@
-# 🏥 KlinikaApp – Portal Rezerwacji Wizyt Lekarskich
+#  ZnanyLekarz2.0 – Portal Rezerwacji Wizyt Lekarskich
 
 Projekt zaliczeniowy z przedmiotu **Programowanie Aplikacji Webowych**.  
 Aplikacja wzorowana na portalu „Znany Lekarz" – pacjent może przejrzeć lekarzy specjalistów, wybrać termin i zarezerwować wizytę online.
 
 ---
 
-## 🚀 Uruchomienie projektu
+##  Uruchomienie projektu
 
 ### Krok 1 – Utwórz wirtualne środowisko
 ```bash
@@ -51,7 +51,7 @@ Otwórz przeglądarkę i wejdź na: **http://127.0.0.1:8000**
 
 ---
 
-## 🔐 Konta testowe
+##  Konta testowe
 
 | Rola | Login | Hasło |
 |------|-------|-------|
@@ -64,7 +64,7 @@ Otwórz przeglądarkę i wejdź na: **http://127.0.0.1:8000**
 
 ---
 
-## 📋 Adresy URL
+##  Adresy URL
 
 | Adres | Opis |
 |-------|------|
@@ -82,7 +82,7 @@ Otwórz przeglądarkę i wejdź na: **http://127.0.0.1:8000**
 
 ---
 
-## 📁 Struktura projektu
+##  Struktura projektu
 
 ```
 projekt_webowka/
@@ -112,7 +112,7 @@ projekt_webowka/
 
 ---
 
-## ⚙️ Zmiana uprawnień administratora
+##  Zmiana uprawnień administratora
 
 Otwórz `klinika_projekt/settings.py` i edytuj listę `ADMINZY`:
 
@@ -125,7 +125,7 @@ ADMINZY = [
 
 ---
 
-## 📧 Konfiguracja e-mail
+##  Konfiguracja e-mail
 
 Domyślnie powiadomienia po rezerwacji wyświetlają się w terminalu.  
 Aby wysyłać prawdziwe maile przez Gmail, odkomentuj blok w `settings.py`:
@@ -141,7 +141,7 @@ EMAIL_HOST_PASSWORD = 'xxxx xxxx xxxx xxxx'  # hasło aplikacji Google
 
 ---
 
-## 🛠️ Przydatne komendy
+##  Przydatne komendy
 
 ```bash
 # Reset bazy i ponowne załadowanie danych
@@ -154,7 +154,7 @@ python manage.py createsuperuser
 
 ---
 
-## 📦 Wymagania
+##  Wymagania
 
 - Python 3.11+
 - Django 4.2
